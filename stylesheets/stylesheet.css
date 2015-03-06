@@ -57,10 +57,11 @@ body {
 }
 
 a {
-  color: #d5000d;
+  color: #6d6d6d;
+  font-weight: normal;
 }
 a:hover {
-  color: #c5000c;
+  color: #303030;
 }
 
 header {
@@ -153,7 +154,7 @@ a.button span {
 }
 
 #download-zip span {
-  background: transparent url(../images/zip-icon.png) 12px 50% no-repeat;
+  background: transparent url(../images/doc-icon.png) 12px 50% no-repeat;
 }
 #download-tar-gz span {
   background: transparent url(../images/tar-gz-icon.png) 12px 50% no-repeat;
