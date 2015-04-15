@@ -8,15 +8,13 @@ html
 		meta(name="Mert Gur")
 		title AskBilkent
 		link(href="/stylesheets/bootstrap.min.css", rel="stylesheet")
+		link(href="/stylesheets/style.css" rel="stylesheet")
 	body
-		nav(class="navbar navbar-inverse navbar-fixed-top")
-			div(class="container")
+		div(class="container")
+			nav(class="navbar navbar-default navbar-fixed-top")
 				div(class="navbar-header")
 					button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
 						span(class="sr-only") Toogle navigation
-						span(class="icon-bar")
-						span(class="icon-bar")
-						span(class="icon-bar")
 					a(class="navbar-brand" href="#") Ask Bilkent
 				div(id="navbar" class="navbar-collapse collapse")
 					ul(class="nav navbar-nav")
@@ -26,20 +24,68 @@ html
 							a(href="#about") About
 						li
 							a(a href="#contact") Contact
-		div(class="container")
-			div(class="row")
-				div(class="col-md-4")
-					h1 Header
-				div(class="col-md-4")
-					h1 Header
-				div(class="col-md-4")
-					h1 Header
-			div(class="row")
-				div(class="col-md-4")
-					h1 Header
-				div(class="col-md-4")
-					h1 Header
-				div(class="col-md-4")
-					h1 Header
+			ul(class="nav nav-tabs")
+				li(role="presentation" class="active")
+					a(href="#") New
+				li(role="presentation")
+					a(href="#") Popular
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							h3(class="score-up") 
+								strong +5
+						div(class="col-md-11")
+							a(href="#")
+								h4(class = "question-ad") Nasıl zengin olunur?
+							div(class="view-number")
+								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+								h7  70 views
+							div(class="view-number")
+								span(class="glyphicon glyphicon-time" aria-hidden="true")
+								h7  4 mins ago
+							div(class="view-author")
+								span(class="glyphicon glyphicon-user" aria-hidden="true")
+								h7  Mert Gür
+
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							h3(class="score-up") 
+								strong +20
+						div(class="col-md-11")
+							a(href="#")
+								h4(class = "question-ad") Microsofta nasıl girilir?
+							div(class="view-number")
+								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+								h7  120 views
+							div(class="view-number")
+								span(class="glyphicon glyphicon-time" aria-hidden="true")
+								h7  20 mins ago
+							div(class="view-author")
+								span(class="glyphicon glyphicon-user" aria-hidden="true")
+								h7  Burak Eserol
+
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							h3(class="score-down") 
+								strong -526
+						div(class="col-md-11")
+							a(href="#")
+								h4(class = "question-ad") Uslubum nasıl?
+							div(class="view-number")
+								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+								h7  2563 views
+							div(class="view-number")
+								span(class="glyphicon glyphicon-time" aria-hidden="true")
+								h7  2 days ago
+							div(class="view-author")
+								span(class="glyphicon glyphicon-user" aria-hidden="true")
+								h7  Naci Uysal
+
+
 		script(src="/javascripts/jquery-2.1.3.min.js")
 		script(src="/javascripts/bootstrap.min.js")

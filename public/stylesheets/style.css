@@ -1,8 +1,32 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+body{
+    padding-top: 70px;
 }
 
-a {
-  color: #00B7FF;
+.thumbnail{
+    margin-top: 20px;
+}
+
+.question-ad{
+    padding-bottom: 5px;
+    border-bottom: 1px solid #dedede;
+}
+
+.score-up{
+    text-align: center;
+    color:#5cb85c;
+}
+
+.score-down{
+    text-align: center;
+    color:#d9534f;
+}
+
+.view-number{
+    float: left;
+    padding-left: 5px;
+    padding-right: 20px;
+}
+
+.view-author{
+    float:right;
 }
