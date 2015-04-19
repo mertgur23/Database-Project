@@ -30,3 +30,57 @@ body{
 .view-author{
     float:right;
 }
+
+.top-input{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.register-button{
+    width: 100%;
+}
+
+.navbar-form{
+    width:50%;
+}
+
+.navbar-form .form-control{
+    width:100%;
+}
+
+.ask-button{
+    margin-right: 10px;
+}
+
+.ask-col{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.arrow{
+    font-size: 30px;
+}
+
+.arrow-but{
+    border: hidden;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.point{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.add-comment{
+    float: left;
+}
+
+.question-author{
+    float:right;
+    position: absolute; 
+    bottom: 0;
+    right: 10px;
+    padding-right: 5px;
+}

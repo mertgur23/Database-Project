@@ -1,91 +1,66 @@
-doctype html
-html
-	head
-		meta(charset = "utf-8")
-		meta(http-equiv="X-UA-Compatible", content="IE=edge")
-		meta(name="viewport", content="width=device-width, initial-scale=1")
-		meta(name="AskBilkent", content)
-		meta(name="Mert Gur")
-		title AskBilkent
-		link(href="/stylesheets/bootstrap.min.css", rel="stylesheet")
-		link(href="/stylesheets/style.css" rel="stylesheet")
-	body
-		div(class="container")
-			nav(class="navbar navbar-default navbar-fixed-top")
-				div(class="navbar-header")
-					button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
-						span(class="sr-only") Toogle navigation
-					a(class="navbar-brand" href="#") Ask Bilkent
-				div(id="navbar" class="navbar-collapse collapse")
-					ul(class="nav navbar-nav")
-						li(class="active")
-							a(href="#") Home
-						li
-							a(href="#about") About
-						li
-							a(a href="#contact") Contact
-			ul(class="nav nav-tabs")
-				li(role="presentation" class="active")
-					a(href="#") New
-				li(role="presentation")
-					a(href="#") Popular
-			div(class="thumbnail")
-				div(class="caption")
-					div(class="row")
-						div(class="col-md-1")
-							h3(class="score-up") 
-								strong +5
-						div(class="col-md-11")
-							a(href="#")
-								h4(class = "question-ad") Nasıl zengin olunur?
-							div(class="view-number")
-								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
-								h7  70 views
-							div(class="view-number")
-								span(class="glyphicon glyphicon-time" aria-hidden="true")
-								h7  4 mins ago
-							div(class="view-author")
-								span(class="glyphicon glyphicon-user" aria-hidden="true")
-								h7  Mert Gür
+extends layout
 
-			div(class="thumbnail")
-				div(class="caption")
-					div(class="row")
-						div(class="col-md-1")
-							h3(class="score-up") 
-								strong +20
-						div(class="col-md-11")
-							a(href="#")
-								h4(class = "question-ad") Microsofta nasıl girilir?
-							div(class="view-number")
-								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
-								h7  120 views
-							div(class="view-number")
-								span(class="glyphicon glyphicon-time" aria-hidden="true")
-								h7  20 mins ago
-							div(class="view-author")
-								span(class="glyphicon glyphicon-user" aria-hidden="true")
-								h7  Burak Eserol
+block content
+	ul(class="nav nav-tabs")
+		li(role="presentation" class="active")
+			a(href="#") New
+		li(role="presentation")
+			a(href="#") Popular
+	div(class="thumbnail")
+		div(class="caption")
+			div(class="row")
+				div(class="col-md-1")
+					h3(class="score-up") 
+						strong +5
+				div(class="col-md-11")
+					a(href="/question")
+						h4(class = "question-ad") Multi-dimensional arrays in C?
+					div(class="view-number")
+						span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+						h7  70 views
+					div(class="view-number")
+						span(class="glyphicon glyphicon-time" aria-hidden="true")
+						h7  4 mins ago
+					div(class="view-author")
+						span(class="glyphicon glyphicon-user" aria-hidden="true")
+						h7  Mert Gür
 
-			div(class="thumbnail")
-				div(class="caption")
-					div(class="row")
-						div(class="col-md-1")
-							h3(class="score-down") 
-								strong -526
-						div(class="col-md-11")
-							a(href="#")
-								h4(class = "question-ad") Uslubum nasıl?
-							div(class="view-number")
-								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
-								h7  2563 views
-							div(class="view-number")
-								span(class="glyphicon glyphicon-time" aria-hidden="true")
-								h7  2 days ago
-							div(class="view-author")
-								span(class="glyphicon glyphicon-user" aria-hidden="true")
-								h7  Naci Uysal
+	div(class="thumbnail")
+		div(class="caption")
+			div(class="row")
+				div(class="col-md-1")
+					h3(class="score-up") 
+						strong +20
+				div(class="col-md-11")
+					a(href="#")
+						h4(class = "question-ad") Java character not recognized correctly
+					div(class="view-number")
+						span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+						h7  120 views
+					div(class="view-number")
+						span(class="glyphicon glyphicon-time" aria-hidden="true")
+						h7  20 mins ago
+					div(class="view-author")
+						span(class="glyphicon glyphicon-user" aria-hidden="true")
+						h7  Burak Eserol
+
+	div(class="thumbnail")
+		div(class="caption")
+			div(class="row")
+				div(class="col-md-1")
+					h3(class="score-down") 
+						strong -3
+				div(class="col-md-11")
+					a(href="#")
+						h4(class = "question-ad") Save a linked list to file in C++
+					div(class="view-number")
+						span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
+						h7  263 views
+					div(class="view-number")
+						span(class="glyphicon glyphicon-time" aria-hidden="true")
+						h7  2 days ago
+					div(class="view-author")
+						span(class="glyphicon glyphicon-user" aria-hidden="true")
+						h7  Naci Uysal
 
 
-		script(src="/javascripts/jquery-2.1.3.min.js")
-		script(src="/javascripts/bootstrap.min.js")
