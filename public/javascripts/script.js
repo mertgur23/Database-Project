@@ -46,10 +46,10 @@ $(document).ready(function() {
 		}, "json");
 	});
 
-	$("#loginPage").click(function(){
+	/*$("#loginPage").click(function(){
 		//$("html").remove();
 		$("html").load("/login");
-	});
+	});*/
 
 
 }); 
