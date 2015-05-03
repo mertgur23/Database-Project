@@ -28,11 +28,23 @@ html
 							
 						form(class="navbar-form navbar-left" role="search")
 							input(type="text" class="form-control" placeholder="Search")
-						ul(class="nav navbar-nav navbar-left")
-							li
-								a(href="/ask") Ask Question
-						ul(class="nav navbar-nav navbar-right")
-							li
-								a(href="/login" id="loginPage") Login
+						if !login
+							ul(class="nav navbar-nav navbar-right")
+								li
+									a(href="/login" id="loginPage") Login
+							ul(class="nav navbar-nav navbar-right")
+								li
+									a(href="/register" id="registerPage") Register
+						else
+							ul(class="nav navbar-nav navbar-right")
+									li
+										a(href="/logout") Logout
+							ul(class="nav navbar-nav navbar-right")
+								li
+									a(href="/profile" id="profilePage") #{login}
+							ul(class="nav navbar-nav navbar-left")
+								li
+									a(href="/ask") Ask Question
+							
 
 			block content

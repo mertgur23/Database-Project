@@ -2,62 +2,53 @@ extends layout
 
 block content
 	h3 Multi-dimensional arrays in C?
-	div(class="thumbnail")
+	div(class="thumbnail" id="questionId" #{})
 		div(class="row")
 			div(class = "col-md-1")
 				a(class="btn btn-default arrow-but" href="#" role="button")
 					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
 				h3(class="score-up point") 
-						strong +5
+						strong #{rows[0].total_like}
 				a(class="btn btn-default arrow-but" href="#" role="button")
 					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 			div(class = "col-md-11")
-				p I was kind of a Java-holic. I wanted to learn more about arrays in C. Is there such an array: int test[5][5][5] I want to know how many integer elements it has. I had three questions: I think there are 125 int type elements. Is that correct?Is it correct that test has 125 *int type elements?Is it correct that test has 5 **int type elements?
+				p #{rows[0].text}
 				button(class="btn btn-default add-comment" type="submit") Add a comment
 				div(class="question-author")
 						span(class="glyphicon glyphicon-user" aria-hidden="true")
-						h7  Mert Gür
-	div(class="thumbnail")
-		div(class="row")
-			div(class = "col-md-12")
-				p 1 - yes, 2 - no, 3 - nope
-				div(class="question-author")
-						span(class="glyphicon glyphicon-user" aria-hidden="true")
-						h7   Marco A.
-	h4 2 Answers
-	div(class="thumbnail")
-		div(class="row")
-			div(class = "col-md-1")
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-				h3(class="score-up point") 
-						strong +6
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
-			div(class = "col-md-11")
-				p Firstly, i think there are 125 int type elements.That's right. It's an array of 5 arrays of 5 arrays of 5 ints, which means there's a total of 125 ints.secondly, is it correct that above 'test' array has 125 *int type elements?*int is not a valid type - presumably you mean int*. Either way, the answer is no. There are no pointers here.thirdly, is it correct that the 'test' array has 5 **int type elements?Again, **int is probably meant to be int**, but the answer is no. No pointers in this declaration.Presumably you're asking this because you have some idea that "arrays are pointers" or "arrays are just pointers under the hood" - this idea is wrong. When you ask for an int[5][5][5], you get exactly that - a 3-dimensional array consisting of a total of 125 int objects.
-				button(class="btn btn-default add-comment" type="submit") Add a comment
-				div(class="question-author")
-					span(class="glyphicon glyphicon-user" aria-hidden="true")
-					h7  Burak Eserol
-	div(class="thumbnail")
-		div(class="row")
-			div(class = "col-md-1")
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-				h3(class="score-down point") 
-						strong -1
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
-			div(class = "col-md-11")
-				p Only the first statement is correct. And you also have another guarantee: multi-dimensional arrays in C++ (notice that C and C++ are two different languages) allocate contiguous memory blocks
-				button(class="btn btn-default add-comment" type="submit") Add a comment
-				div(class="question-author")
-					span(class="glyphicon glyphicon-user" aria-hidden="true")
-					h7  A.N.U
+						h7  #{rows[0].user_name}
+	- for (var i = 0; i < children.length; ++i) {
+		if children[i].post_type == 'Q_C'
+			div(class="thumbnail")
+				div(class="row")
+					div(class = "col-md-12")
+						p #{children[i].text}
+						div(class="question-author")
+								span(class="glyphicon glyphicon-user" aria-hidden="true")
+								h7  #{children[i].user_name}
+	- }
+
+	- for (var i = 0; i < children.length; ++i) {
+		if children[i].post_type == 'A'
+			div(class="thumbnail")
+				div(class="row")
+					div(class = "col-md-1")
+						a(class="btn btn-default arrow-but" href="#" role="button")
+							<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
+						h3(class="score-up point") 
+							strong #{children[i].total_like}
+						a(class="btn btn-default arrow-but" href="#" role="button")
+							<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
+					div(class = "col-md-11")
+						p #{children[i].text}
+						button(class="btn btn-default add-comment" type="submit") Add a comment
+						div(class="question-author")
+							span(class="glyphicon glyphicon-user" aria-hidden="true")
+							h7  #{children[i].user_name}
+	- }
 	div(class="thumbnail")
 		form
 			div(class="form-group")
 				label(for="answer") Your Answer
 				textarea(class="form-control" rows="3" id="answer")
-		button(type="submit" class="btn btn-success answer-button") Submit
+		button(type="submit" id= "submitAnswer" class="btn btn-success answer-button") Submit

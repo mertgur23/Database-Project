@@ -40,16 +40,48 @@ $(document).ready(function() {
   			}
   			if(data.redirect){
   				$(location).attr('pathname',data.redirect);
-  				$.cookie("username", data.cookiename);
-  				$.cookie("password", data.cookiepass);
   			}
 		}, "json");
 	});
+	
+	$("#askQuestionButton").click(function(){
+		var title = $("#questionTitle").val();
+		var text = $("#questionText").val();
+		if(title.length < 5){
+			alert("Title must be at least 5 character");
+		}
+		else if(text < 20){
+			alert("Question must be at least 20 character");
+		}
+		else{
+			$.post("askQuestion", {title: title, text: text}, function(data){
+				if(data.message){
+	  					alert(data.message);
+	  			}
+	  			if(data.redirect){
+	  				$(location).attr('pathname',data.redirect);
+	  			}
+			}, "json");
+		}
+	});
 
-	/*$("#loginPage").click(function(){
-		//$("html").remove();
-		$("html").load("/login");
-	});*/
+	$("#submitAnswer").click(function(){
+		var qId = $(location).attr('pathname').split(':');
+		var answer = $("#answer").val();
+		if(answer.length < 10){
+			alert("Answer must be at least 10 character");
+		}
+		else{
+			$.post("answerQuestion", {answer: answer, qId : qId[1]}, function(data){
+				if(data.message){
+	  					alert(data.message);
+	  			}
+	  			if(data.redirect){
+	  				$(location).attr('pathname',data.redirect);
+	  			}
+			}, "json");
+		}
+	});
 
 
 }); 

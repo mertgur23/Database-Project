@@ -79,7 +79,7 @@ router.post('/register', function(req, res, next){
 
 
 //////////////////////LOGIN////////////////////////
-router.post('/login', function(req, res, next){
+/*router.post('/login', function(req, res, next){
 	var username = req.body.username;
 	var password = req.body.password;
 	console.log(username);
@@ -96,6 +96,6 @@ router.post('/login', function(req, res, next){
 	    }
     });
   	
-});
+});*/
 
 module.exports = router;
