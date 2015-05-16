@@ -13,7 +13,7 @@ block content
 					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 			div(class = "col-md-11")
 				p #{rows[0].text}
-				button(class="btn btn-default add-comment" type="submit") Add a comment
+				button(class="btn btn-default add-comment add-comment-button" type="button") Add a comment
 				div(class="question-author")
 						span(class="glyphicon glyphicon-user" aria-hidden="true")
 						h7  #{rows[0].user_name}
@@ -41,7 +41,7 @@ block content
 							<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 					div(class = "col-md-11")
 						p #{children[i].text}
-						button(class="btn btn-default add-comment" type="submit") Add a comment
+						button(class="btn btn-default add-comment add-comment-button" type="button") Add a comment
 						div(class="question-author")
 							span(class="glyphicon glyphicon-user" aria-hidden="true")
 							h7  #{children[i].user_name}
@@ -51,4 +51,16 @@ block content
 			div(class="form-group")
 				label(for="answer") Your Answer
 				textarea(class="form-control" rows="3" id="answer")
-		button(type="submit" id= "submitAnswer" class="btn btn-success answer-button") Submit
+		button(type="button" id= "submitAnswer" class="btn btn-success answer-button") Submit
+		
+	div(id="myModal" class="modal fade")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times;
+					h4(class="modal-title") Enter your command
+				div(class="modal-body")
+					textarea(class="form-control" rows="3" id="comment")
+				div(class="modal-footer")
+						button(type="button" class="btn btn-default" data-dismiss="modal") Close
+						button(type="button" class="btn btn-primary" id="enterCommand") Submit
