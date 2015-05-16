@@ -173,11 +173,32 @@ app.get('/question:id', function(req, res, next){
   var a = req.params.id.split(':');
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err,rows){
     connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id="+ a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err,children){
-      console.log(children);
+      //console.log(children);
       res.render('question', {rows: rows, children: children, login: name});
     });
   });
 });
+
+app.get('/profile', function(req, res, next){
+  sess = req.session;
+  var user_id = sess.user_id;
+  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id ="+ user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err,questions){
+    connection.query("Select * from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id ="+ user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err,answers){
+      connection.query("Select * from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id ="+ user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err,favourite){
+        connection.query("Select * from Badges B, has_badges H, User U where U.user_id ="+ user_id +" and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges){
+          connection.query("Select * from Tag T, follow F, User U where U.user_id ="+ user_id +" and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err,tags){
+            connection.query("Select * from User U where U.user_id ="+ user_id +"", function(err,reputation){
+              console.log(reputation);
+              res.render('profile', {questions : questions, answers : answers, favourite : favourite, badges : badges, tags : tags, reputation : reputation});
+            });
+          });
+        });
+      });
+    });
+  });
+  
+});
+
 
 app.post('/answerQuestion', function(req, res, next){
   var answer = req.body.answer;
@@ -193,9 +214,6 @@ app.post('/answerQuestion', function(req, res, next){
   res.redirect("/question:" + qId);
 });
 
-app.get('/profile', function(req, res, next){
-  res.render('profile', {test: "C"});
-});
 
 
 // catch 404 and forward to error handler

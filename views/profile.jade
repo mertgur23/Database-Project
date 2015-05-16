@@ -2,40 +2,43 @@ extends layout
 block content
 	div(class="row")
 			div(class = "col-md-9")
-				h2 Questions(3)
+				h2 Questions(#{questions.length})
 				div(class="list-group")
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
-				h2 Answers(2)
+				- for(var i =0; i < questions.length; ++i){
+					a(href="/question:#{questions[i].post_id}" class = "list-group-item") 
+						h4 <strong>#{questions[i].title}</strong> 
+						p #{questions[i].text}
+				- }
+
+				h2 Answers(#{ answers.length})
 				div(class="list-group")
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
-				h2 Favorite Questions(1)
+				- for(i =0; i < answers.length; ++i){
+					a(href="/question:#{answers[i].parent_id}" class = "list-group-item") 
+						h4 <strong>#{answers[i].title}</strong> 
+						p #{answers[i].text}
+				- }
+				h2 Favorite Questions(#{favourite.length})
 				div(class="list-group")
-					a(href="#" class = "list-group-item") 
-						h4 <strong>Dapibus ac facilisis in</strong> 
-						p Morbi dapibus felis sit amet dui lacinia, at sagittis lacus iaculis. Ut velit lectus, tincidunt quis velit et, placerat ullamcorper justo. Duis quis turpis malesuada, semper ipsum ac, vestibulum augue. Mauris ligula ante, tempor at interdum eu, vestibulum at elit
+				- for(i = 0; i < favourite.length; ++i){
+					a(href="/question:#{favourite[i].post_id}" class = "list-group-item") 
+						h4 <strong>#{favourite[i].title}</strong> 
+						p #{favourite[i].text}
+				- }
+					
 			div(class = "col-md-3")
-				h4 Reputation: 11 Points
+				h4 Reputation: #{reputation[0].reputation} Points
 				div(class="panel panel-primary")
 					div(class="panel-heading") Badges
 					div(class="panel-body")
-						button(type="button" class="btn btn-primary btn-lg btn-block") Popular
-						button(type="button" class="btn btn-success btn-lg btn-block") Guru
-						button(type="button" class="btn btn-danger btn-lg btn-block") Enlightener
-				h2 Followed Tags(4)
-					<button type="button" class="btn btn-default">Java</button>
-					<button type="button" class="btn btn-default">PHP</button>
-					<button type="button" class="btn btn-default">OOP</button>
-					<button type="button" class="btn btn-default">CSS</button>
+						- for(i = 0; i < badges.length; ++i){
+							if badges[i].badgeType == 'Epic'
+								button(type="button" class="btn btn-primary btn-lg btn-block") #{badges[i].badgeName}
+							if badges[i].badgeType == 'Rare'
+								button(type="button" class="btn btn-success btn-lg btn-block") #{badges[i].badgeName}
+							if badges[i].badgeType == 'Legendary'
+								button(type="button" class="btn btn-danger btn-lg btn-block") #{badges[i].badgeName}
+						- }
+				h2 Followed Tags(#{tags.length})
+					- for(i = 0; i < tags.length; ++i){
+						<button type="button" class="btn btn-default"> #{tags[i].name} </button>
+					- }
