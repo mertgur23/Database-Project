@@ -158,7 +158,7 @@ app.post('/askQuestion', function(req, res, next){
               res.send({message: "Error"}); 
             }
             else{
-              ///Redirect
+              res.redirect('/');
             }
           });
       }
@@ -193,19 +193,9 @@ app.post('/answerQuestion', function(req, res, next){
   res.redirect("/question:" + qId);
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.get('/profile', function(req, res, next){
+  res.render('profile', {test: "C"});
+});
 
 
 // catch 404 and forward to error handler
