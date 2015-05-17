@@ -27,9 +27,21 @@ $(document).ready(function() {
         }
       }, "json");
     }
-
-
   });
+
+  /*$("#upvoteButton").click(function() {
+      $.post("upvote", {
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
+  });*/
+
+
 
   $("#loginButton").click(function() {
     var username = $("#loginUsername").val();
