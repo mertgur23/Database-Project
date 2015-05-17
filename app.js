@@ -58,6 +58,18 @@ app.get('/', function(req, res, next) {
   });
 });
 
+app.get('/popular', function(req, res, next) {
+  sess = req.session;
+  var id = sess.user_id;
+  var name = sess.user_name;
+  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
+    res.render('indexPopular', {
+      rows: rows,
+      login: name
+    });
+  });
+});
+
 app.get('/register', function(req, res, next) {
   res.render('register');
 });
@@ -122,11 +134,6 @@ app.post('/register', function(req, res, next) {
     }
   });
 });
-
-/*app.post('/upvote', function(req, res, next){
-
-});*/
-
 
 
 app.post('/login', function(req, res, next) {
@@ -202,7 +209,7 @@ app.get('/question:id', function(req, res, next) {
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
     connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
       connection.query("Select * from user_post_view where user_id=" + user_id + " and post_id=" + a[1] + "", function(err, view_result) {
-        console.log(view_result);
+        //console.log(view_result);
         if (view_result.length == 0 && user_id != 0) {
           connection.query("insert into user_post_view values (" + user_id + ", " + a[1] + ")", function(err, instertedView) {
             connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] + "", function(err, increaseView) {});
@@ -303,6 +310,138 @@ app.post("/commentPost", function(req, res, next) {
     redirect: "/question:" + qId
   });
 });
+
+app.post('/upvote', function(req, res, next){
+  console.log("Upvote Pressed");
+  var postId = req.body.postId;
+  var user_id = sess.user_id;
+  console.log(postId);
+  connection.query("Select H.user_id from Post P, has_post H where P.post_id = H.post_id and P.post_id = " + postId +"", function(err,postOwner){
+    connection.query("Select * from votes_on where user_id = " + user_id +" and post_id =" + postId + "", function(err, votedBefore){
+      if(!user_id) 
+      {
+        res.send({
+          message: "Login to Vote a Post"
+        });
+      }
+      else
+      {
+        if( postOwner[0].user_id == user_id)
+        {
+          res.send({
+            message: "You Can't Vote Your Post"
+          });
+        }
+        else if (votedBefore.length != 0)
+        {
+          res.send({
+            message: "You Voted This Post Before. You Can't Vote Again"
+          });
+        }
+        else
+        {
+          console.log("BURADAYIM");
+          connection.query("UPDATE Post SET total_like = total_like + 1 where post_id = " + postId + "", function(err, upvotePost){
+            connection.query("UPDATE Post SET number_of_upvotes = number_of_upvotes + 1 where post_id = " + postId + "", function(err, upvotePost){
+              connection.query("UPDATE User SET reputation = reputation + 10 where user_id = " + postOwner[0].user_id +"", function(err, repUser){
+                connection.query("insert into votes_on values("+ user_id +", " + postId + ", 'U', NOW())", function(err, votes_onValue){
+                  connection.query("Select post_type from Post where post_id = " + postId +"", function(err,postType){
+                    console.log(postType[0].post_type);
+                    if( postType[0].post_type == "Q")
+                    {
+                      res.send({
+                        redirect: "/question:" + postId
+                      });
+                    }
+                    else
+                    {
+                      connection.query("Select parent_id from has_parent where post_id = " + postId + "", function(err, parentId){
+                        res.send({
+                          redirect: "/question:" + parentId[0].parent_id
+                        });
+                      });
+                    }
+                  });
+                });
+              });
+            });
+          });
+        }
+      }
+   });
+  });
+});
+
+app.post('/downvote', function(req, res, next){
+  console.log("Downvote Pressed");
+  var postId = req.body.postId;
+  var user_id = sess.user_id;
+  console.log(postId);
+  connection.query("Select H.user_id from Post P, has_post H where P.post_id = H.post_id and P.post_id = " + postId +"", function(err,postOwner){
+    connection.query("Select * from votes_on where user_id = " + user_id +" and post_id =" + postId + "", function(err, votedBefore){
+      if(!user_id)
+      {
+        res.send({
+          message: "Login to Vote a Post"
+        });
+      }
+      else
+      {
+        if( postOwner[0].user_id == user_id)
+        {
+          res.send({
+            message: "You Can't Vote Your Post"
+          });
+        }
+        else if (votedBefore.length != 0)
+        {
+          res.send({
+            message: "You Voted This Post Before. You Can't Vote Again"
+          });
+        }
+        else
+        {
+          console.log("BURADAYIM");
+          connection.query("UPDATE Post SET total_like = total_like - 1 where post_id = " + postId + "", function(err, upvotePost){
+            connection.query("UPDATE Post SET number_of_downvotes = number_of_downvotes + 1 where post_id = " + postId + "", function(err, upvotePost){
+              connection.query("UPDATE User SET reputation = reputation - 5 where user_id = " + postOwner[0].user_id +"", function(err, repUser){
+                connection.query("insert into votes_on values("+ user_id +", " + postId + ", 'D', NOW())", function(err, votes_onValue){
+                  connection.query("Select post_type from Post where post_id = " + postId +"", function(err,postType){
+                    console.log(postType[0].post_type);
+                    if( postType[0].post_type == "Q")
+                    {
+                      res.send({
+                        redirect: "/question:" + postId
+                      });
+                    }
+                    else
+                    {
+                      connection.query("Select parent_id from has_parent where post_id = " + postId + "", function(err, parentId){
+                        res.send({
+                          redirect: "/question:" + parentId[0].parent_id
+                        });
+                      });
+                    }
+                  });
+                });
+              });
+            });
+          });
+        }
+      }
+   });
+  });
+});
+
+
+
+
+app.get('/profile', function(req, res, next) {
+  res.render('profile', {
+    test: "C"
+  });
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

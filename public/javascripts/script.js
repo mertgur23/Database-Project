@@ -29,20 +29,6 @@ $(document).ready(function() {
     }
   });
 
-  /*$("#upvoteButton").click(function() {
-      $.post("upvote", {
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
-  });*/
-
-
-
   $("#loginButton").click(function() {
     var username = $("#loginUsername").val();
     var password = $("#loginPassword").val();
@@ -107,6 +93,7 @@ $(document).ready(function() {
     $("#myModal").modal('show');
   });
 
+
   $("#enterCommand").click(function() {
     var postId = $("#myModal").attr("data-postid");
     var comment = $("#comment").val();
@@ -120,6 +107,34 @@ $(document).ready(function() {
         window.location.reload(true);
       }, "json");
     }
+  });
+
+  $(".upvoteButton").click(function() {
+    var postId = $(this).attr("data-post_id");
+     $.post("upvote", {
+      postId: postId
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
+  });
+
+  $(".downvoteButton").click(function() {
+    var postId = $(this).attr("data-post_id");
+     $.post("downvote", {
+      postId: postId
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
   });
 
 });
