@@ -107,6 +107,7 @@ $(document).ready(function() {
     $("#myModal").modal('show');
   });
 
+
   $("#enterCommand").click(function() {
     var postId = $(this).attr("data-postid");
     var comment = $("#comment").val();
@@ -121,6 +122,10 @@ $(document).ready(function() {
         $("#comment").val("");
       }, "json");
     }
+  });
+
+  $(".upvoteButton").click(function() {
+    console.log("Basıldı");
   });
 
 });
