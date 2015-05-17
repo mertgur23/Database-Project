@@ -121,8 +121,11 @@ app.post('/register', function(req, res, next) {
       });
     }
   });
-
 });
+
+/*app.post('/upvote', function(req, res, next){
+
+});*/
 
 
 
@@ -192,14 +195,28 @@ app.post('/askQuestion', function(req, res, next) {
 
 app.get('/question:id', function(req, res, next) {
   var name = sess.user_name;
+  var user_id = sess.user_id;
   var a = req.params.id.split(':');
+  if(!user_id)
+    user_id = 0;
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
     connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
-      console.log(children);
-      res.render('question', {
-        rows: rows,
-        children: children,
-        login: name
+      connection.query("Select * from user_post_view where user_id=" + user_id +" and post_id=" + a[1] + "", function(err,view_result){
+        console.log(view_result);
+        if(view_result.length == 0 && user_id != 0)
+        {
+          console.log("Buraya Girdim");
+          connection.query("insert into user_post_view values (" + user_id +", " + a[1] + ")", function(err, instertedView){
+            connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] +"", function(err, increaseView){
+            });
+          });
+        }
+        //console.log(children);
+        res.render('question', {
+          rows: rows,
+          children: children,
+          login: name
+      });
       });
     });
   });

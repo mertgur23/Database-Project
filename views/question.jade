@@ -5,7 +5,7 @@ block content
 	div(class="thumbnail" id="questionId" #{})
 		div(class="row")
 			div(class = "col-md-1")
-				a(class="btn btn-default arrow-but" href="#" role="button")
+				a(class="btn btn-default arrow-but" role="button" id = "upvoteButton")
 					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
 				h3(class="score-up point") 
 						strong #{rows[0].total_like}
