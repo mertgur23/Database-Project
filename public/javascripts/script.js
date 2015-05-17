@@ -95,9 +95,24 @@ $(document).ready(function() {
     console.log("asdas");
   });
 
-  $.("#enterCommand").click(function() {
+  $("#enterCommand").click(function() {
     var qId = $(location).attr('pathname').split(':');
     var comment = $("#comment").val();
+    if (comment.length < 10) {
+      alert("Comment must be at least 10 character");
+    } else {
+      $.post("commentPost", {
+        comment: comment,
+        qId: qId[1]
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
+    }
   });
 
 });
