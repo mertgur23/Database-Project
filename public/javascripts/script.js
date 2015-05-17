@@ -108,7 +108,7 @@ $(document).ready(function() {
   });
 
   $("#enterCommand").click(function() {
-    var postId = $(this).attr("data-postid");
+    var postId = $("#myModal").attr("data-postid");
     var comment = $("#comment").val();
     if (comment.length < 10) {
       alert("Comment must be at least 10 character");
@@ -117,8 +117,7 @@ $(document).ready(function() {
         comment: comment,
         postId: postId
       }, function(data) {
-        $('#myModal').modal('hide');
-        $("#comment").val("");
+        window.location.reload(true);
       }, "json");
     }
   });

@@ -79,7 +79,7 @@ body{
 
 .question-author{
     float:right;
-    position: absolute; 
+    position: absolute;
     bottom: 0;
     right: 10px;
     padding-right: 5px;
@@ -87,4 +87,8 @@ body{
 
 .badge{
     margin-right: 5px;
+}
+
+.bordercolor{
+  border-color: #332C2F;
 }

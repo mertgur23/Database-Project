@@ -188,7 +188,6 @@ app.post('/askQuestion', function(req, res, next) {
         });
       }
     });
-
   }
 });
 
@@ -196,6 +195,7 @@ app.post('/askQuestion', function(req, res, next) {
 app.get('/question:id', function(req, res, next) {
   var name = sess.user_name;
   var user_id = sess.user_id;
+  var comments = new Array();
   var a = req.params.id.split(':');
   if (!user_id)
     user_id = 0;
@@ -204,18 +204,44 @@ app.get('/question:id', function(req, res, next) {
       connection.query("Select * from user_post_view where user_id=" + user_id + " and post_id=" + a[1] + "", function(err, view_result) {
         console.log(view_result);
         if (view_result.length == 0 && user_id != 0) {
-          console.log("Buraya Girdim");
           connection.query("insert into user_post_view values (" + user_id + ", " + a[1] + ")", function(err, instertedView) {
             connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] + "", function(err, increaseView) {});
           });
         }
-        //console.log(children);
-        res.render('question', {
-          rows: rows,
-          children: children,
-          login: name
-        });
+        var count = 0;
+        for (var i = 0; i < children.length; i++) {
+          if (children[i].post_type == 'A') {
+            count++;
+            connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+              if (err) {
+                console.log(err);
+              }
+              count--;
+              comments.push(childchild);
+              if (count == 0) {
+                res.render('question', {
+                  rows: rows,
+                  children: children,
+                  comments: comments,
+                  login: name,
+                  login: sess.user_name
+                });
+              }
+            });
+          }
+        }
+        if (count == 0) {
+          res.render('question', {
+            rows: rows,
+            children: children,
+            comments: comments,
+            login: name,
+            login: sess.user_name
+          });
+        }
+
       });
+
     });
   });
 });
@@ -236,7 +262,8 @@ app.get('/profile', function(req, res, next) {
                 favourite: favourite,
                 badges: badges,
                 tags: tags,
-                reputation: reputation
+                reputation: reputation,
+                login: sess.user_name
               });
             });
           });
@@ -244,7 +271,6 @@ app.get('/profile', function(req, res, next) {
       });
     });
   });
-
 });
 
 
@@ -277,13 +303,6 @@ app.post("/commentPost", function(req, res, next) {
     redirect: "/question:" + qId
   });
 });
-
-app.get('/profile', function(req, res, next) {
-  res.render('profile', {
-    test: "C"
-  });
-});
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
