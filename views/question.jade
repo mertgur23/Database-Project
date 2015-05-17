@@ -9,7 +9,7 @@ block content
 					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
 				h3(class="score-up point") 
 						strong #{rows[0].total_like}
-				a(class="btn btn-default arrow-but" href="#" role="button")
+				a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
 					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 			div(class = "col-md-11")
 				p #{rows[0].text}
@@ -33,11 +33,11 @@ block content
 			div(class="thumbnail")
 				div(class="row")
 					div(class = "col-md-1")
-						a(class="btn btn-default arrow-but" href="#" role="button")
+						a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 							<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
 						h3(class="score-up point") 
 							strong #{children[i].total_like}
-						a(class="btn btn-default arrow-but" href="#" role="button")
+						a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 							<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 					div(class = "col-md-11")
 						p #{children[i].text}

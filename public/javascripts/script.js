@@ -29,20 +29,6 @@ $(document).ready(function() {
     }
   });
 
-  /*$("#upvoteButton").click(function() {
-      $.post("upvote", {
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
-  });*/
-
-
-
   $("#loginButton").click(function() {
     var username = $("#loginUsername").val();
     var password = $("#loginPassword").val();
@@ -125,7 +111,31 @@ $(document).ready(function() {
   });
 
   $(".upvoteButton").click(function() {
-    console.log("Basıldı");
+    var postId = $(this).attr("data-post_id");
+     $.post("upvote", {
+      postId: postId
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
+  });
+
+  $(".downvoteButton").click(function() {
+    var postId = $(this).attr("data-post_id");
+     $.post("downvote", {
+      postId: postId
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
   });
 
 });
