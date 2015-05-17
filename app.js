@@ -195,7 +195,7 @@ app.get('/question:id', function(req, res, next) {
   var a = req.params.id.split(':');
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
     connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
-      console.log(children);
+      console.log(rows);
       res.render('question', {
         rows: rows,
         children: children,
@@ -243,10 +243,10 @@ app.post('/answerQuestion', function(req, res, next) {
 
 app.post("/commentPost", function(req, res, next) {
   var comment = req.body.comment;
-  var qId = req.body.qId;
+  var qId = req.body.postId;
   var name = sess.user_name;
   if (name) {
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text) values(NOW(), NOW(), 'A','" + answer + "' )", function(err, rows) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text) values(NOW(), NOW(), 'Q_C','" + comment + "' )", function(err, rows) {
       connection.query("insert into has_parent values(" + rows.insertId + ", " + qId + ")");
       connection.query("insert into has_post values(" + sess.user_id + ", " + rows.insertId + ")");
     });

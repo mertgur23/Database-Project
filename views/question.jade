@@ -13,7 +13,7 @@ block content
 					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 			div(class = "col-md-11")
 				p #{rows[0].text}
-				button(class="btn btn-default add-comment add-comment-button" type="button") Add a comment
+				button(class="btn btn-default add-comment add-comment-button" type="button" data-postid = '#{rows[0].post_id}') Add a comment
 				div(class="question-author")
 						span(class="glyphicon glyphicon-user" aria-hidden="true")
 						h7  #{rows[0].user_name}
@@ -41,7 +41,7 @@ block content
 							<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 					div(class = "col-md-11")
 						p #{children[i].text}
-						button(class="btn btn-default add-comment add-comment-button" type="button") Add a comment
+						button(class="btn btn-default add-comment add-comment-button" type="button" data-postid = '#{children[i].post_id}') Add a comment
 						div(class="question-author")
 							span(class="glyphicon glyphicon-user" aria-hidden="true")
 							h7  #{children[i].user_name}
@@ -53,7 +53,7 @@ block content
 				textarea(class="form-control" rows="3" id="answer")
 		button(type="button" id= "submitAnswer" class="btn btn-success answer-button") Submit
 		
-	div(id="myModal" class="modal fade")
+	div(id="myModal" class="modal fade" data-postid = "")
 		div(class="modal-dialog")
 			div(class="modal-content")
 				div(class="modal-header")

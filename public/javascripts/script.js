@@ -91,26 +91,22 @@ $(document).ready(function() {
   });
 
   $(".add-comment-button").click(function() {
+    $("#myModal").attr("data-postid", $(this).attr("data-postid"));
     $("#myModal").modal('show');
-    console.log("asdas");
   });
 
   $("#enterCommand").click(function() {
-    var qId = $(location).attr('pathname').split(':');
+    var postId = $(this).attr("data-postid");
     var comment = $("#comment").val();
     if (comment.length < 10) {
       alert("Comment must be at least 10 character");
     } else {
       $.post("commentPost", {
         comment: comment,
-        qId: qId[1]
+        postId: postId
       }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
+        $('#myModal').modal('hide');
+        $("#comment").val("");
       }, "json");
     }
   });
