@@ -14,11 +14,11 @@ var mysql = require('mysql');
 
 
 var connection = mysql.createConnection({
-  host     : "csdatabaseinstance.cevxrmipfzbs.us-west-2.rds.amazonaws.com",
-  user     : "mertgur",
-  password : "305020305020",
-  port     : "3030",
-  database : 'innodb'
+  host: "csdatabaseinstance.cevxrmipfzbs.us-west-2.rds.amazonaws.com",
+  user: "mertgur",
+  password: "305020305020",
+  port: "3030",
+  database: 'innodb'
 });
 
 connection.connect();
@@ -30,12 +30,16 @@ app.set('view engine', 'jade');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({secret: 'ssshhhhh'}));
+app.use(session({
+  secret: 'ssshhhhh'
+}));
 
 app.use('/users', users);
 
@@ -53,15 +57,27 @@ app.get('/', function(req, res, next) {
   });
 });
 
-app.get('/register', function(req, res, next){
+app.get('/popular', function(req, res, next) {
+  sess = req.session;
+  var id = sess.user_id;
+  var name = sess.user_name;
+  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
+    res.render('indexPopular', {
+      rows: rows,
+      login: name
+    });
+  });
+});
+
+app.get('/register', function(req, res, next) {
   res.render('register');
 });
 
-app.get('/login', function(req, res, next){
+app.get('/login', function(req, res, next) {
   res.render('login');
 });
 
-app.get('/ask', function(req, res, next){
+app.get('/ask', function(req, res, next) {
   sess = req.session;
   if(sess.user_name)
   {
@@ -91,76 +107,84 @@ app.get('/followedTag', function(req, res,next)
 });
 
 /////////////////REGISTER//////////////////
-app.post('/register', function(req, res, next){
+app.post('/register', function(req, res, next) {
   var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;
 
-  connection.query("select user_name from User where user_name = '" + username + "'", function(err, rows){
-    if(err){
-      res.send({message: "Invalid username!"});
-    }
-    else if(rows[0]){
-      res.send({message: "Username exist!"});
-    }
-    else{
-      connection.query("select e_mail from User where e_mail = '" + email + "'", function(err, rows){
-        if(err){
-          res.send({message: "Invalid email!"});
-        }
-        else if(rows[0]){
-          res.send({message: "Email exist!"});
-        }
-        else{
-          connection.query("insert into User (user_name, password, e_mail) values ('"+username+"', '"+password+"', '"+email+"')", function(err, rows){
-            if(err){
-              res.send({message: "Error"});
-            }
-            else{
-              res.send({redirect: "/login"});
+  connection.query("select user_name from User where user_name = '" + username + "'", function(err, rows) {
+    if (err) {
+      res.send({
+        message: "Invalid username!"
+      });
+    } else if (rows[0]) {
+      res.send({
+        message: "Username exist!"
+      });
+    } else {
+      connection.query("select e_mail from User where e_mail = '" + email + "'", function(err, rows) {
+        if (err) {
+          res.send({
+            message: "Invalid email!"
+          });
+        } else if (rows[0]) {
+          res.send({
+            message: "Email exist!"
+          });
+        } else {
+          connection.query("insert into User (user_name, password, e_mail) values ('" + username + "', '" + password + "', '" + email + "')", function(err, rows) {
+            if (err) {
+              res.send({
+                message: "Error"
+              });
+            } else {
+              res.send({
+                redirect: "/login"
+              });
             }
           });
-          
+
         }
       });
     }
   });
-  
 });
 
 app.post('/login', function(req, res, next){
   var username = req.body.username;
   var password = req.body.password;
-  connection.query("select user_name, user_id from User where user_name = '" + username + "' and password = '" + password + "'", function(err, rows){
-      if (err) { 
-        res.send({message: "Error"}); 
-      }
-      else if (!rows[0]) {
-          res.send({message: 'Incorrect username or password'});
-      }
-      else{
-        sess=req.session;
-        sess.user_name = username;
-        sess.user_id = rows[0].user_id;
-        res.send({redirect: "/"});
-      }
-    });
-    
+  connection.query("select user_name, user_id from User where user_name = '" + username + "' and password = '" + password + "'", function(err, rows) {
+    if (err) {
+      res.send({
+        message: "Error"
+      });
+    } else if (!rows[0]) {
+      res.send({
+        message: 'Incorrect username or password'
+      });
+    } else {
+      sess = req.session;
+      sess.user_name = username;
+      sess.user_id = rows[0].user_id;
+      res.send({
+        redirect: "/"
+      });
+    }
+  });
+
 });
 
-app.get("/logout", function(req, res, next){
-  req.session.destroy(function(err){
-    if(err){
+app.get("/logout", function(req, res, next) {
+  req.session.destroy(function(err) {
+    if (err) {
       console.log(err);
-    }
-    else
-    {
+    } else {
       res.redirect('/');
     }
   });
 });
 
-app.post('/askQuestion', function(req, res, next){
+app.post('/askQuestion', function(req, res, next) {
   sess = req.session;
   var userid = sess.user_id;
   var title = req.body.title;
@@ -171,8 +195,8 @@ app.post('/askQuestion', function(req, res, next){
   if(userid){
     connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')" , function(err, rows)
     {
-      if (err) { 
-        res.send({message: "Error"}); 
+      if (err) {
+        res.send({message: "Error"});
       }
       else {
           insertedId = rows.insertId;
@@ -202,10 +226,10 @@ app.post('/askQuestion', function(req, res, next){
               });
             }
           });
-          
+
           connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows){
-            if (err) { 
-              res.send({message: "Error"}); 
+            if (err) {
+              res.send({message: "Error"});
             }
             else{
               res.redirect('/');
@@ -217,36 +241,217 @@ app.post('/askQuestion', function(req, res, next){
 });
 
 
-app.get('/question:id', function(req, res, next){
+app.get('/question:id', function(req, res, next) {
   var name = sess.user_name;
+  var user_id = sess.user_id;
+  var comments = new Array();
   var a = req.params.id.split(':');
-  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err,rows){
-    connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id="+ a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err,children){
-      connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = "+a[1], function(err, tags){
-        console.log(tags);
-        console.log(children);
-        res.render('question', {rows: rows, tags: tags, children: children, login: name});
+  if (!user_id)
+    user_id = 0;
+  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
+    connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
+      connection.query("Select * from user_post_view where user_id=" + user_id + " and post_id=" + a[1] + "", function(err, view_result) {
+        if (view_result.length == 0 && user_id != 0) {
+          connection.query("insert into user_post_view values (" + user_id + ", " + a[1] + ")", function(err, instertedView) {
+            connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] + "", function(err, increaseView) {});
+          });
+        }
+        connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = "+a[1], function(err, tags){
+        var count = 0;
+        for (var i = 0; i < children.length; i++) {
+          if (children[i].post_type == 'A') {
+            count++;
+            connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+              if (err) {
+                console.log(err);
+              }
+              count--;
+              comments.push(childchild);
+              if (count == 0) {
+                res.render('question', {
+                  rows: rows,
+                  children: children,
+                  comments: comments,
+                  login: name,
+                  tags: tags
+                });
+              });
+            });
+          }
+        }
+        if (count == 0) {
+          res.render('question', {
+            rows: rows,
+            children: children,
+            comments: comments,
+            login: name,
+            tags: tags
+          });
+        }
+      }
+      });
+
+    });
+  });
+});
+
+app.get('/profile', function(req, res, next) {
+  sess = req.session;
+  var user_id = sess.user_id;
+  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err, questions) {
+    connection.query("Select * from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id =" + user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err, answers) {
+      connection.query("Select * from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err, favourite) {
+        connection.query("Select * from Badges B, has_badges H, User U where U.user_id =" + user_id + " and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges) {
+          connection.query("Select * from Tag T, follow F, User U where U.user_id =" + user_id + " and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err, tags) {
+            connection.query("Select * from User U where U.user_id =" + user_id + "", function(err, reputation) {
+              res.render('profile', {
+                questions: questions,
+                answers: answers,
+                favourite: favourite,
+                badges: badges,
+                tags: tags,
+                reputation: reputation,
+                login: sess.user_name
+              });
+            });
+          });
+        });
       });
     });
   });
 });
 
-app.post('/answerQuestion', function(req, res, next){
+
+app.post('/answerQuestion', function(req, res, next) {
   var answer = req.body.answer;
   var qId = req.body.qId;
   var name = sess.user_name;
-  console.log(answer);
-  if(name){
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text) values(NOW(), NOW(), 'A','"+  answer +"' )", function(err, rows){
-      connection.query("insert into has_parent values("+ rows.insertId+", "+ qId +")");
-      connection.query("insert into has_post values(" + sess.user_id + ", " +  rows.insertId +")");
+  if (name) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text) values(NOW(), NOW(), 'A','" + answer + "' )", function(err, rows) {
+      connection.query("insert into has_parent values(" + rows.insertId + ", " + qId + ")");
+      connection.query("insert into has_post values(" + sess.user_id + ", " + rows.insertId + ")");
     });
   }
-  res.redirect("/question:" + qId);
+  res.send({
+    redirect: "/question:" + qId
+  });
 });
 
-app.get('/profile', function(req, res, next){
-  res.render('profile', {test: "C"});
+app.post("/commentPost", function(req, res, next) {
+  var comment = req.body.comment;
+  var qId = req.body.postId;
+  var name = sess.user_name;
+  if (name) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text) values(NOW(), NOW(), 'Q_C','" + comment + "' )", function(err, rows) {
+      connection.query("insert into has_parent values(" + rows.insertId + ", " + qId + ")");
+      connection.query("insert into has_post values(" + sess.user_id + ", " + rows.insertId + ")");
+    });
+  }
+  res.send({
+    redirect: "/question:" + qId
+  });
+});
+
+app.post('/upvote', function(req, res, next) {
+  var postId = req.body.postId;
+  var user_id = sess.user_id;
+  connection.query("Select H.user_id from Post P, has_post H where P.post_id = H.post_id and P.post_id = " + postId + "", function(err, postOwner) {
+    connection.query("Select * from votes_on where user_id = " + user_id + " and post_id =" + postId + "", function(err, votedBefore) {
+      if (!user_id) {
+        res.send({
+          message: "Login to Vote a Post"
+        });
+      } else {
+        if (postOwner[0].user_id == user_id) {
+          res.send({
+            message: "You Can't Vote Your Post"
+          });
+        } else if (votedBefore.length != 0) {
+          res.send({
+            message: "You Voted This Post Before. You Can't Vote Again"
+          });
+        } else {
+          connection.query("UPDATE Post SET total_like = total_like + 1 where post_id = " + postId + "", function(err, upvotePost) {
+            connection.query("UPDATE Post SET number_of_upvotes = number_of_upvotes + 1 where post_id = " + postId + "", function(err, upvotePost) {
+              connection.query("UPDATE User SET reputation = reputation + 10 where user_id = " + postOwner[0].user_id + "", function(err, repUser) {
+                connection.query("insert into votes_on values(" + user_id + ", " + postId + ", 'U', NOW())", function(err, votes_onValue) {
+                  connection.query("Select post_type from Post where post_id = " + postId + "", function(err, postType) {
+                    if (postType[0].post_type == "Q") {
+                      res.send({
+                        redirect: "/question:" + postId
+                      });
+                    } else {
+                      connection.query("Select parent_id from has_parent where post_id = " + postId + "", function(err, parentId) {
+                        res.send({
+                          redirect: "/question:" + parentId[0].parent_id
+                        });
+                      });
+                    }
+                  });
+                });
+              });
+            });
+          });
+        }
+      }
+    });
+  });
+});
+
+app.post('/downvote', function(req, res, next) {
+  var postId = req.body.postId;
+  var user_id = sess.user_id;
+  connection.query("Select H.user_id from Post P, has_post H where P.post_id = H.post_id and P.post_id = " + postId + "", function(err, postOwner) {
+    connection.query("Select * from votes_on where user_id = " + user_id + " and post_id =" + postId + "", function(err, votedBefore) {
+      if (!user_id) {
+        res.send({
+          message: "Login to Vote a Post"
+        });
+      } else {
+        if (postOwner[0].user_id == user_id) {
+          res.send({
+            message: "You Can't Vote Your Post"
+          });
+        } else if (votedBefore.length != 0) {
+          res.send({
+            message: "You Voted This Post Before. You Can't Vote Again"
+          });
+        } else {
+          connection.query("UPDATE Post SET total_like = total_like - 1 where post_id = " + postId + "", function(err, upvotePost) {
+            connection.query("UPDATE Post SET number_of_downvotes = number_of_downvotes + 1 where post_id = " + postId + "", function(err, upvotePost) {
+              connection.query("UPDATE User SET reputation = reputation - 5 where user_id = " + postOwner[0].user_id + "", function(err, repUser) {
+                connection.query("insert into votes_on values(" + user_id + ", " + postId + ", 'D', NOW())", function(err, votes_onValue) {
+                  connection.query("Select post_type from Post where post_id = " + postId + "", function(err, postType) {
+
+                    if (postType[0].post_type == "Q") {
+                      res.send({
+                        redirect: "/question:" + postId
+                      });
+                    } else {
+                      connection.query("Select parent_id from has_parent where post_id = " + postId + "", function(err, parentId) {
+                        res.send({
+                          redirect: "/question:" + parentId[0].parent_id
+                        });
+                      });
+                    }
+                  });
+                });
+              });
+            });
+          });
+        }
+      }
+    });
+  });
+});
+
+
+
+
+app.get('/profile', function(req, res, next) {
+  res.render('profile', {
+    test: "C"
+  });
 });
 
 app.post('/getTag', function(req,res,next)

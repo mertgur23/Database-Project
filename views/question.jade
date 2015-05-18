@@ -1,58 +1,86 @@
 extends layout
 
 block content
-	h3 Multi-dimensional arrays in C?
-	div(class="thumbnail" id="questionId" #{})
-		div(class="row")
-			div(class = "col-md-1")
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-				h3(class="score-up point") 
-						strong #{rows[0].total_like}
-				a(class="btn btn-default arrow-but" href="#" role="button")
-					<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
-			div(class = "col-md-11")
-				p #{rows[0].text}
-				button(class="btn btn-default add-comment" type="submit") Add a comment
-				div(class="question-author")
-						span(class="glyphicon glyphicon-user" aria-hidden="true")
-						h7  #{rows[0].user_name}
-			div(class="col-md-4")
-				h7 Tags:
-				- for(var j = 0; j < tags.length; j++){
-					h7  #{tags[j].name}	
-				- }
-	- for (var i = 0; i < children.length; ++i) {
-		if children[i].post_type == 'Q_C'
-			div(class="thumbnail")
-				div(class="row")
-					div(class = "col-md-12")
-						p #{children[i].text}
-						div(class="question-author")
-								span(class="glyphicon glyphicon-user" aria-hidden="true")
-								h7  #{children[i].user_name}
-	- }
+	h3 #{rows[0].title}
+	div(class="thumbnail bordercolor")
+		div(class="thumbnail" id="questionId" #{})
+			div(class="row")
+				div(class = "col-md-1")
+					a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
+						<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
+					h3(class="score-up point") 
+							strong #{rows[0].total_like}
+					a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
+						<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
+				div(class = "col-md-11")
+					p #{rows[0].text}
+					if login
+						button(class="btn btn-default add-comment add-comment-button" type="button" data-postid = '#{rows[0].post_id}') Add a comment
+					div(class="question-author")
+							span(class="glyphicon glyphicon-user" aria-hidden="true")
+							h7  #{rows[0].user_name}
+				div(class="col-md-4")
+					h7 Tags:
+					- for(var j = 0; j < tags.length; j++){
+						h7  #{tags[j].name}	
+					- }
+		- for (var i = 0; i < children.length; ++i) {
+			if children[i].post_type == 'Q_C'
+				div(class="thumbnail")
+					div(class="row")
+						div(class = "col-md-12")
+							p #{children[i].text}
+							div(class="question-author")
+									span(class="glyphicon glyphicon-user" aria-hidden="true")
+									h7  #{children[i].user_name}
+		- }
+	h2 Answers
+	
 	- for (var i = 0; i < children.length; ++i) {
 		if children[i].post_type == 'A'
-			div(class="thumbnail")
-				div(class="row")
-					div(class = "col-md-1")
-						a(class="btn btn-default arrow-but" href="#" role="button")
-							<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-						h3(class="score-up point") 
-							strong #{children[i].total_like}
-						a(class="btn btn-default arrow-but" href="#" role="button")
-							<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
-					div(class = "col-md-11")
-						p #{children[i].text}
-						button(class="btn btn-default add-comment" type="submit") Add a comment
-						div(class="question-author")
-							span(class="glyphicon glyphicon-user" aria-hidden="true")
-							h7  #{children[i].user_name}
+			div(class="thumbnail bordercolor")
+				div(class="thumbnail")
+					div(class="row")
+						div(class = "col-md-1")
+							a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{children[i].post_id}')
+								<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
+							h3(class="score-up point") 
+								strong #{children[i].total_like}
+							a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{children[i].post_id}')
+								<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
+						div(class = "col-md-11")
+							p #{children[i].text}
+							if login
+								button(class="btn btn-default add-comment add-comment-button" type="button" data-postid = '#{children[i].post_id}') Add a comment
+							div(class="question-author")
+								span(class="glyphicon glyphicon-user" aria-hidden="true")
+								h7  #{children[i].user_name}
+				- for (var j = 0; j < comments[i].length; ++j) {
+						div(class="thumbnail")
+							div(class="row")
+								div(class = "col-md-12")
+									p #{comments[i][j].text}
+									div(class="question-author")
+											span(class="glyphicon glyphicon-user" aria-hidden="true")
+											h7  #{comments[i][j].user_name}
+				- }
 	- }
-	div(class="thumbnail")
-		form
-			div(class="form-group")
-				label(for="answer") Your Answer
-				textarea(class="form-control" rows="3" id="answer")
-		button(type="submit" id= "submitAnswer" class="btn btn-success answer-button") Submit
+	if login
+		div(class="thumbnail bordercolor")
+			form
+				div(class="form-group")
+					label(for="answer") Your Answer
+					textarea(class="form-control" rows="3" id="answer")
+			button(type="button" id= "submitAnswer" class="btn btn-success answer-button") Submit
+		
+	div(id="myModal" class="modal fade" data-postid = "")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times;
+					h4(class="modal-title") Enter your comment
+				div(class="modal-body")
+					textarea(class="form-control" rows="3" id="comment")
+				div(class="modal-footer")
+						button(type="button" class="btn btn-default" data-dismiss="modal") Close
+						button(type="button" class="btn btn-primary" id="enterCommand") Submit
