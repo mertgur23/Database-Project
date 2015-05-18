@@ -1,12 +1,13 @@
 extends layout
 block content
 	ul(class="nav nav-tabs")
-		li(role="presentation" class="active")
+		li(role="presentation")
 			a(href="/#") New
 		li(role="presentation")
 			a(href="/popular") Popular
-		li(role="presentation")
-			a(href="/followedTag") Followed Tags	
+		li(role="presentation" class="active")
+			a(href="/followedTag") Followed Tags
+
 	- for (var i = 0; i < rows.length; ++i) {
 			div(class="thumbnail")
 				div(class="caption")
@@ -27,5 +28,3 @@ block content
 								span(class="glyphicon glyphicon-user" aria-hidden="true")
 								h7  #{rows[i].user_name}
 	- }
-
-

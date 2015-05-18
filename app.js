@@ -47,6 +47,8 @@ app.get('/', function(req, res, next) {
   var id = sess.user_id;
   var name = sess.user_name;
   connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.ask_timestamp desc limit 10', function(err,rows){
+    if(err)
+      res.send({message: "Error"});
     res.render('index', {rows : rows, login : name});
   });
 });
@@ -62,13 +64,31 @@ app.get('/login', function(req, res, next){
 app.get('/ask', function(req, res, next){
   sess = req.session;
   if(sess.user_name)
-    res.render('ask', {login: sess.user_name});
+  {
+    connection.query("Select category_name from Categories", function(err, catz){
+      res.render('ask', {login: sess.user_name, catz: catz});
+    });
+  }
   else
     res.redirect("/");
 });
 
-
-
+app.get('/followedTag', function(req, res,next)
+{
+  sess = req.session;
+  var id = sess.user_id;
+  if(id)
+  {
+    connection.query("Select * from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id="+id+" and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err,rows){
+    if(err)
+      console.log(err);
+    console.log(rows);
+    res.render('followedTag', {rows: rows});
+    });
+  }
+  else
+    res.redirect("/login");
+});
 
 /////////////////REGISTER//////////////////
 app.post('/register', function(req, res, next){
@@ -108,8 +128,6 @@ app.post('/register', function(req, res, next){
   
 });
 
-
-
 app.post('/login', function(req, res, next){
   var username = req.body.username;
   var password = req.body.password;
@@ -147,13 +165,45 @@ app.post('/askQuestion', function(req, res, next){
   var userid = sess.user_id;
   var title = req.body.title;
   var text = req.body.text;
+  var tags = req.body.tags;
+  var splittedTags = tags.split(" ");
+  var insertedId;
   if(userid){
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')" , function(err, rows){
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')" , function(err, rows)
+    {
       if (err) { 
         res.send({message: "Error"}); 
       }
       else {
-          connection.query("insert into has_post values(" + userid + ", " + rows.insertId + ")", function(err, rows){
+          insertedId = rows.insertId;
+          function searchCoords(callback)
+          {
+            var result = result;
+            for( var i = 0; i < splittedTags.length; i++)
+            {
+              connection.query("Select tag_id from Tag where name='"+splittedTags[i]+"'", function(err, result,fields)
+              {
+                if(err)
+                  console.log(err);
+                callback({result: result});
+              });
+            }
+          }
+
+          searchCoords(function(resultsObject)
+          {
+            for( var j = 0; j < resultsObject.result.length; j++)
+            {
+              var tagid = resultsObject.result[j].tag_id;
+              connection.query("insert into post_tag(post_id, tag_id) values ("+insertedId+","+tagid+")", function(err,result)
+              {
+                if(err)
+                  console.log(err);
+              });
+            }
+          });
+          
+          connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows){
             if (err) { 
               res.send({message: "Error"}); 
             }
@@ -163,7 +213,6 @@ app.post('/askQuestion', function(req, res, next){
           });
       }
     });
-
   }
 });
 
@@ -173,8 +222,11 @@ app.get('/question:id', function(req, res, next){
   var a = req.params.id.split(':');
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err,rows){
     connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id="+ a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err,children){
-      console.log(children);
-      res.render('question', {rows: rows, children: children, login: name});
+      connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = "+a[1], function(err, tags){
+        console.log(tags);
+        console.log(children);
+        res.render('question', {rows: rows, tags: tags, children: children, login: name});
+      });
     });
   });
 });
@@ -195,6 +247,36 @@ app.post('/answerQuestion', function(req, res, next){
 
 app.get('/profile', function(req, res, next){
   res.render('profile', {test: "C"});
+});
+
+app.post('/getTag', function(req,res,next)
+{
+  var cat = req.body.cat;
+  if(cat)
+  {
+    connection.query("Select category_id from Categories where category_name = '" + cat +"'", function(err, rows)
+    {
+      if(err)
+      {
+        console.log(err);
+      }
+      if(rows)
+      {
+        var cat_id = rows[0].category_id;
+        connection.query("Select t.name from Tag t, has_tag h where h.tag_id = t.tag_id and h.category_id="+cat_id, function(err, tags)
+        {
+          if (err)
+          {
+            console.log(err);
+          }
+          if(tags)
+          {
+            res.send({tags:tags});
+          }
+        });
+      }
+    });
+  }
 });
 
 

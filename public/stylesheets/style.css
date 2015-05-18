@@ -88,3 +88,15 @@ body{
 .badge{
     margin-right: 5px;
 }
+
+.ask-tag{
+    padding-right: 10px; 
+}
+
+.avail-tag{
+    padding-right: 30px;
+}
+
+.tag-field{
+    padding-right: 1px;
+}

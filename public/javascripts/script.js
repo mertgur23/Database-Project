@@ -47,6 +47,9 @@ $(document).ready(function() {
 	$("#askQuestionButton").click(function(){
 		var title = $("#questionTitle").val();
 		var text = $("#questionText").val();
+		var tags = $("#tags-area").val();
+		//var splittedTags = tags.split(" ");
+		alert(tags);
 		if(title.length < 5){
 			alert("Title must be at least 5 character");
 		}
@@ -54,7 +57,7 @@ $(document).ready(function() {
 			alert("Question must be at least 20 character");
 		}
 		else{
-			$.post("askQuestion", {title: title, text: text}, function(data){
+			$.post("askQuestion", {title: title, text: text, tags: tags}, function(data){
 				if(data.message){
 	  					alert(data.message);
 	  			}
@@ -83,7 +86,21 @@ $(document).ready(function() {
 		}
 	});
 
-
+	$(".dropdown-menu li").click(function(){
+		var cat = $(this).text();
+	  	$(this).parents(".input-group-btn").find('.btn').text(cat);
+	  	$.post("getTag", {cat: cat}, function(data){
+	  		if(data.tags)
+	  		{
+	  			var total_tags =[];
+	  			for(var i = 0; i < data.tags.length; i++)
+	  			{
+	  				total_tags.push(data.tags[i].name);
+	  			}
+	  			$("#tags_available").text(total_tags);
+	  		}
+	  	}, "json");
+	});
 }); 
 
 function IsEmail(email) {

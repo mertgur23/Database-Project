@@ -17,6 +17,11 @@ block content
 				div(class="question-author")
 						span(class="glyphicon glyphicon-user" aria-hidden="true")
 						h7  #{rows[0].user_name}
+			div(class="col-md-4")
+				h7 Tags:
+				- for(var j = 0; j < tags.length; j++){
+					h7  #{tags[j].name}	
+				- }
 	- for (var i = 0; i < children.length; ++i) {
 		if children[i].post_type == 'Q_C'
 			div(class="thumbnail")
@@ -27,7 +32,6 @@ block content
 								span(class="glyphicon glyphicon-user" aria-hidden="true")
 								h7  #{children[i].user_name}
 	- }
-
 	- for (var i = 0; i < children.length; ++i) {
 		if children[i].post_type == 'A'
 			div(class="thumbnail")

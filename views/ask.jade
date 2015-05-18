@@ -13,6 +13,18 @@ block content
 				button(type="submit" id = "askQuestionButton" class="btn btn-success ask-button") Ask Question
 				button(type="submit" class="btn btn-default") Cancel
 			div(class="col-md-3")
+				div(class="input-group-btn")
+					button(class="btn dropdown-toggle" data-toggle="dropdown") Categories
+						span(class="caret") 
+					ul(class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu")
+						- for (var i = 0; i < catz.length; ++i) {
+							li(role="menuitem" tabindex="-1" align="left") #{catz[i].category_name}
+						- }
+			div(class="col-md-3") Tags: 		
 			div(class="col-md-3 ask-col")
-				input(type="search" class="form-control" id="addTag" placeholder="Add Tag")
+				input( type="text" class="form-control" id="tags-area") 
+		div(class="row")
+			div(class="col-md-1") Available Tags:				
+			field(class="avail-tag" id="tags_available")		
+			
 			
