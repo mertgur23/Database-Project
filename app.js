@@ -156,6 +156,28 @@ app.post('/register', function(req, res, next) {
   });
 });
 
+app.post('/favourite', function(req, res, next){
+  var user_id = sess.user_id;
+  var post_id = req.body.post_id;
+  connection.query("insert into favourites values (" + user_id + ", " + post_id + ")", function(err, insertFavourite){
+    res.send({
+        redirect: "/question:" + post_id
+    });
+  });
+});
+
+app.post('/unfavourite', function(req, res, next){
+  var user_id = sess.user_id;
+  var post_id = req.body.post_id;
+  console.log(user_id);
+  console.log(post_id);
+  connection.query("DELETE FROM favourites where user_id = " + user_id + " and post_id = " + post_id , function(err, deleteFavourite){
+    res.send({
+        redirect: "/question:" + post_id
+    });
+  });
+});
+
 app.post('/login', function(req, res, next) {
   var username = req.body.username;
   var password = req.body.password;
@@ -251,6 +273,7 @@ app.get('/question:id', function(req, res, next) {
   var user_id = sess.user_id;
   var comments = new Array();
   var a = req.params.id.split(':');
+  var favourited = 0;
   if (!user_id)
     user_id = 0;
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
@@ -262,6 +285,18 @@ app.get('/question:id', function(req, res, next) {
           });
         }
         connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = " + a[1], function(err, tags) {
+          connection.query("Select * from favourites where user_id = " + user_id + " and post_id =" + a[1] +"", function(err,favouriteResult){
+            if (err)
+                console.log(err);
+            console.log(user_id);
+            console.log(a[1]);
+            console.log(favouriteResult);
+            if(favouriteResult.length > 0)
+            {
+              console.log("Girdim");
+              favourited = 1;
+            }
+              
             var count = 0;
             for (var i = 0; i < children.length; i++) {
               if (children[i].post_type == 'A') {
@@ -278,7 +313,8 @@ app.get('/question:id', function(req, res, next) {
                         children: children,
                         comments: comments,
                         login: name,
-                        tags: tags
+                        tags: tags,
+                        favourited : favourited
                       });
                     }
                 });
@@ -290,12 +326,13 @@ app.get('/question:id', function(req, res, next) {
               children: children,
               comments: comments,
               login: name,
-              tags: tags
+              tags: tags,
+              favourited: favourited
             });
           }
         });
       });
-
+     });
     });
   });
 });

@@ -2,13 +2,22 @@ extends layout
 
 block content
 	h3 #{rows[0].title}
+	if login
+		if !favourited
+			button(type="button" id= "favouriteQuestion" class="btn btn-success") Favourite
+		else
+			button(type="button" id= "unfavouriteQuestion" class="btn btn-danger") Unfavourite
 	div(class="thumbnail bordercolor")
 		div(class="thumbnail" id="questionId" #{})
 			div(class="row")
 				div(class = "col-md-1")
 					a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
 						<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-					h3(class="score-up point") 
+					if rows[0].total_like < 0
+						h3(class="score-down point")
+							strong #{rows[0].total_like}
+					else
+						h3(class="score-up point") 
 							strong #{rows[0].total_like}
 					a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
 						<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
@@ -44,8 +53,12 @@ block content
 						div(class = "col-md-1")
 							a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 								<span class="glyphicon glyphicon-chevron-up arrow" aria-hidden="true"></span>
-							h3(class="score-up point") 
-								strong #{children[i].total_like}
+							if children[i].total_like < 0
+								h3(class="score-down point")
+									strong #{children[i].total_like}
+							else
+								h3(class="score-up point") 
+									strong #{children[i].total_like}
 							a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 								<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 						div(class = "col-md-11")
