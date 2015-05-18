@@ -50,7 +50,6 @@ $(document).ready(function() {
     var text = $("#questionText").val();
     if (title.length < 5) {
       alert("Title must be at least 5 character");
-      console.log($(location).attr('pathname'));
     } else if (text < 20) {
       alert("Question must be at least 20 character");
     } else {
@@ -111,30 +110,30 @@ $(document).ready(function() {
 
   $(".upvoteButton").click(function() {
     var postId = $(this).attr("data-post_id");
-     $.post("upvote", {
+    $.post("upvote", {
       postId: postId
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+    }, function(data) {
+      if (data.message) {
+        alert(data.message);
+      }
+      if (data.redirect) {
+        $(location).attr('pathname', data.redirect);
+      }
+    }, "json");
   });
 
   $(".downvoteButton").click(function() {
     var postId = $(this).attr("data-post_id");
-     $.post("downvote", {
+    $.post("downvote", {
       postId: postId
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+    }, function(data) {
+      if (data.message) {
+        alert(data.message);
+      }
+      if (data.redirect) {
+        $(location).attr('pathname', data.redirect);
+      }
+    }, "json");
   });
 
 });
