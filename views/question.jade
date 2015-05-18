@@ -2,6 +2,11 @@ extends layout
 
 block content
 	h3 #{rows[0].title}
+	if login
+		if !favourited
+			button(type="button" id= "favouriteQuestion" class="btn btn-success") Favourite
+		else
+			button(type="button" id= "unfavouriteQuestion" class="btn btn-danger") Unfavourite
 	div(class="thumbnail bordercolor")
 		div(class="thumbnail" id="questionId" #{})
 			div(class="row")
