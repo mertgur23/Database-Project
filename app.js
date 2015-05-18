@@ -104,7 +104,8 @@ app.get('/followedTag', function(req, res, next) {
         console.log(err);
       console.log(rows);
       res.render('followedTag', {
-        rows: rows
+        rows: rows,
+        login: sess.user_name
       });
     });
   } else
