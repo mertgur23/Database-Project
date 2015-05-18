@@ -68,6 +68,9 @@ $(document).ready(function() {
 		else if(text < 20){
 			alert("Question must be at least 20 character");
 		}
+    else if(tags.length == 0){
+      alert("Please enter at least one tag");
+    }
 		else{
 			$.post("askQuestion", {title: title, text: text, tags: tags}, function(data){
 				if(data.message){

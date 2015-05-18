@@ -50,10 +50,15 @@ app.get('/', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
   var name = sess.user_name;
-  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.ask_timestamp desc limit 10', function(err,rows){
-    if(err)
-      res.send({message: "Error"});
-    res.render('index', {rows : rows, login : name});
+  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.ask_timestamp desc limit 10', function(err, rows) {
+    if (err)
+      res.send({
+        message: "Error"
+      });
+    res.render('index', {
+      rows: rows,
+      login: name
+    });
   });
 });
 
@@ -79,30 +84,30 @@ app.get('/login', function(req, res, next) {
 
 app.get('/ask', function(req, res, next) {
   sess = req.session;
-  if(sess.user_name)
-  {
-    connection.query("Select category_name from Categories", function(err, catz){
-      res.render('ask', {login: sess.user_name, catz: catz});
+  if (sess.user_name) {
+    connection.query("Select category_name from Categories", function(err, catz) {
+      res.render('ask', {
+        login: sess.user_name,
+        catz: catz
+      });
     });
-  }
-  else
+  } else
     res.redirect("/");
 });
 
-app.get('/followedTag', function(req, res,next)
-{
+app.get('/followedTag', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
-  if(id)
-  {
-    connection.query("Select * from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id="+id+" and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err,rows){
-    if(err)
-      console.log(err);
-    console.log(rows);
-    res.render('followedTag', {rows: rows});
+  if (id) {
+    connection.query("Select * from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id=" + id + " and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err, rows) {
+      if (err)
+        console.log(err);
+      console.log(rows);
+      res.render('followedTag', {
+        rows: rows
+      });
     });
-  }
-  else
+  } else
     res.redirect("/login");
 });
 
@@ -150,7 +155,7 @@ app.post('/register', function(req, res, next) {
   });
 });
 
-app.post('/login', function(req, res, next){
+app.post('/login', function(req, res, next) {
   var username = req.body.username;
   var password = req.body.password;
   connection.query("select user_name, user_id from User where user_name = '" + username + "' and password = '" + password + "'", function(err, rows) {
@@ -192,49 +197,48 @@ app.post('/askQuestion', function(req, res, next) {
   var tags = req.body.tags;
   var splittedTags = tags.split(" ");
   var insertedId;
-  if(userid){
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')" , function(err, rows)
-    {
+  if (userid) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
       if (err) {
-        res.send({message: "Error"});
-      }
-      else {
-          insertedId = rows.insertId;
-          function searchCoords(callback)
-          {
-            var result = result;
-            for( var i = 0; i < splittedTags.length; i++)
-            {
-              connection.query("Select tag_id from Tag where name='"+splittedTags[i]+"'", function(err, result,fields)
-              {
-                if(err)
-                  console.log(err);
-                callback({result: result});
+        res.send({
+          message: "Error"
+        });
+      } else {
+        insertedId = rows.insertId;
+
+        function searchCoords(callback) {
+          var result = result;
+          for (var i = 0; i < splittedTags.length; i++) {
+            connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result, fields) {
+              if (err)
+                console.log(err);
+              callback({
+                result: result
               });
-            }
+            });
           }
+        }
 
-          searchCoords(function(resultsObject)
-          {
-            for( var j = 0; j < resultsObject.result.length; j++)
-            {
-              var tagid = resultsObject.result[j].tag_id;
-              connection.query("insert into post_tag(post_id, tag_id) values ("+insertedId+","+tagid+")", function(err,result)
-              {
-                if(err)
-                  console.log(err);
-              });
-            }
-          });
+        searchCoords(function(resultsObject) {
+          for (var j = 0; j < resultsObject.result.length; j++) {
+            var tagid = resultsObject.result[j].tag_id;
+            connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + tagid + ")", function(err, result) {
+              if (err)
+                console.log(err);
+            });
+          }
+        });
 
-          connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows){
-            if (err) {
-              res.send({message: "Error"});
-            }
-            else{
-              res.redirect('/');
-            }
-          });
+        connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
+              if (err) {
+                res.send({
+                  message: "Error"
+                });
+              } else {
+                res.send({
+                  redirect: "/"
+                });          }
+        });
       }
     });
   }
@@ -256,39 +260,39 @@ app.get('/question:id', function(req, res, next) {
             connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] + "", function(err, increaseView) {});
           });
         }
-        connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = "+a[1], function(err, tags){
-        var count = 0;
-        for (var i = 0; i < children.length; i++) {
-          if (children[i].post_type == 'A') {
-            count++;
-            connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
-              if (err) {
-                console.log(err);
-              }
-              count--;
-              comments.push(childchild);
-              if (count == 0) {
-                res.render('question', {
-                  rows: rows,
-                  children: children,
-                  comments: comments,
-                  login: name,
-                  tags: tags
+        connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = " + a[1], function(err, tags) {
+            var count = 0;
+            for (var i = 0; i < children.length; i++) {
+              if (children[i].post_type == 'A') {
+                count++;
+                connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+                    if (err) {
+                      console.log(err);
+                    }
+                    count--;
+                    comments.push(childchild);
+                    if (count == 0) {
+                      res.render('question', {
+                        rows: rows,
+                        children: children,
+                        comments: comments,
+                        login: name,
+                        tags: tags
+                      });
+                    }
                 });
-              });
+            }
+          }
+          if (count == 0) {
+            res.render('question', {
+              rows: rows,
+              children: children,
+              comments: comments,
+              login: name,
+              tags: tags
             });
           }
-        }
-        if (count == 0) {
-          res.render('question', {
-            rows: rows,
-            children: children,
-            comments: comments,
-            login: name,
-            tags: tags
-          });
-        }
-      }
+        });
       });
 
     });
@@ -454,29 +458,23 @@ app.get('/profile', function(req, res, next) {
   });
 });
 
-app.post('/getTag', function(req,res,next)
-{
+app.post('/getTag', function(req, res, next) {
   var cat = req.body.cat;
-  if(cat)
-  {
-    connection.query("Select category_id from Categories where category_name = '" + cat +"'", function(err, rows)
-    {
-      if(err)
-      {
+  if (cat) {
+    connection.query("Select category_id from Categories where category_name = '" + cat + "'", function(err, rows) {
+      if (err) {
         console.log(err);
       }
-      if(rows)
-      {
+      if (rows) {
         var cat_id = rows[0].category_id;
-        connection.query("Select t.name from Tag t, has_tag h where h.tag_id = t.tag_id and h.category_id="+cat_id, function(err, tags)
-        {
-          if (err)
-          {
+        connection.query("Select t.name from Tag t, has_tag h where h.tag_id = t.tag_id and h.category_id=" + cat_id, function(err, tags) {
+          if (err) {
             console.log(err);
           }
-          if(tags)
-          {
-            res.send({tags:tags});
+          if (tags) {
+            res.send({
+              tags: tags
+            });
           }
         });
       }
