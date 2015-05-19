@@ -104,7 +104,8 @@ app.get('/followedTag', function(req, res, next) {
         console.log(err);
       console.log(rows);
       res.render('followedTag', {
-        rows: rows
+        rows: rows,
+        login: sess.user_name
       });
     });
   } else
@@ -222,7 +223,7 @@ app.post('/askQuestion', function(req, res, next) {
   var valid = 1;
   var index = 0;
   var i;
-  if (userid) 
+  if (userid)
   {
     connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows){
       insertedId = rows.insertId;
@@ -253,14 +254,14 @@ app.post('/askQuestion', function(req, res, next) {
                     } else {
                       res.send({redirect: "/"});
                     }
-                  });    
+                  });
                 }
               });
             }
           });
         }
-      }    
-    }); 
+      }
+    });
   }
 });
 
@@ -294,7 +295,7 @@ app.get('/question:id', function(req, res, next) {
               console.log("Girdim");
               favourited = 1;
             }
-              
+
             var count = 0;
             for (var i = 0; i < children.length; i++) {
               if (children[i].post_type == 'A') {
