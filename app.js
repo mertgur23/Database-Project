@@ -66,7 +66,7 @@ app.get('/popular', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
   var name = sess.user_name;
-  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
+  connection.query('Select P.total_like, P.post_id, P.title, P.number_of_views, P.ask_timestamp, U.user_name from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
     res.render('indexPopular', {
       rows: rows,
       login: name
@@ -489,12 +489,12 @@ app.get('/question:id', function(req, res, next) {
 app.get('/profile', function(req, res, next) {
   sess = req.session;
   var user_id = sess.user_id;
-  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err, questions) {
-    connection.query("Select * from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id =" + user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err, answers) {
-      connection.query("Select * from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err, favourite) {
-        connection.query("Select * from Badges B, has_badges H, User U where U.user_id =" + user_id + " and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges) {
-          connection.query("Select * from Tag T, follow F, User U where U.user_id =" + user_id + " and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err, tags) {
-            connection.query("Select * from User U where U.user_id =" + user_id + "", function(err, reputation) {
+  connection.query("Select P.post_id, P.title, P.text from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err, questions) {
+    connection.query("Select HP.parent_id, P.text from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id =" + user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err, answers) {
+      connection.query("Select P.post_id, P.title, P.text from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err, favourite) {
+        connection.query("Select B.badgeType, B.badgeName from Badges B, has_badges H, User U where U.user_id =" + user_id + " and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges) {
+          connection.query("Select T.name from Tag T, follow F, User U where U.user_id =" + user_id + " and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err, tags) {
+            connection.query("Select U.reputation from User U where U.user_id =" + user_id + "", function(err, reputation) {
               res.render('profile', {
                 questions: questions,
                 answers: answers,
