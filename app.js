@@ -81,15 +81,21 @@ app.get('/statistics', function(req, res, next) {
   var name = sess.user_name;
   connection.query("Select user_name, MAX(reputation) as rep from User where userType_id =" + check + " group by user_name order by rep desc limit 5", function(err, highestRepPeople) {
     connection.query("Select H.user_id, U.user_name, count(H.post_id) as Count from has_post H, User U where H.user_id = U.user_id group by H.user_id having Count > 10 order by Count desc limit 10", function(err2, poster) {
-      if (err)
-        console.log(err);
-      if (err2)
-        console.log(err2);
-      console.log(poster);
-      res.render('Statistics', {
-        highestRepPeople: highestRepPeople,
-        poster: poster,
-        login: sess.user_name
+      connection.query("DROP VIEW IF EXISTS postAvg");
+      connection.query('CREATE VIEW postAvg AS Select P.post_id,P.title, P.total_like from Post P where P.post_type = "Q" and P.total_like > (Select AVG(total_like) from Post where post_type = "Q")', function(err, avgLike) {
+        connection.query("Select * from postAvg where title IS NOT NULL order by total_like desc limit 10", function(err, avgPost) {
+          if (err)
+            console.log(err);
+          if (err2)
+            console.log(err2);
+          console.log(poster);
+          res.render('Statistics', {
+            highestRepPeople: highestRepPeople,
+            poster: poster,
+            login: sess.user_name,
+            avgPost: avgPost
+          });
+        });
       });
     });
   });
@@ -317,8 +323,7 @@ app.post('/followTag', function(req, res, next) {
         res.send({
           message: "Given tag(s) are not valid"
         });
-      }
-      else {
+      } else {
         str = "";
         for (var i = 0; i < splittedTags.length; i++) {
           str += "('" + userid + "', '" + rows[i].tag_id + "')";
@@ -330,9 +335,10 @@ app.post('/followTag', function(req, res, next) {
             res.send({
               message: "You can't follow tags you already follow"
             });
-          }
-          else
-            res.send({redirect: "/followedTag"}); 
+          } else
+            res.send({
+              redirect: "/followedTag"
+            });
         });
       }
     });
@@ -373,7 +379,9 @@ app.post('/addTag', function(req, res, next) {
                   if (err4)
                     console.log(err4);
                   else
-                    res.send({ redirect: "/followedTag"});
+                    res.send({
+                      redirect: "/followedTag"
+                    });
                 });
               }
             });

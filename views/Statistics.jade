@@ -27,3 +27,19 @@ block content
 							h4 Username:#{poster[i].user_name} #Post:#{poster[i].Count}							
 	- }
 
+	h3 Most Liked Questions
+	- for (var i = 0; i < avgPost.length; ++i) {
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							if avgPost[i].total_like < 0
+								h3(class="score-down point")
+									strong #{avgPost[i].total_like}
+							else
+								h3(class="score-up point") 
+									strong #{avgPost[i].total_like}
+						div(class="col-md-11")
+							a(href="/question:#{avgPost[i].post_id}")
+								h4(class = "question-ad") #{avgPost[i].title}	
+	- }
