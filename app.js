@@ -252,7 +252,49 @@ app.post('/askQuestion', function(req, res, next) {
   var insertedId;
   var index = 0;
   if (userid) {
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
+    var str = "(";
+    for (var i = 0; i < splittedTags.length; i++) {
+      str += "'" + splittedTags[i] + "'";
+      if(i != splittedTags.length - 1)
+        str += ", ";
+    }
+    str += ")";
+    console.log(str);
+    connection.query("select tag_id from Tag where name in " + str, function(err, rows){
+      if(err){
+        console.log(err);
+      }
+      if(rows.length != splittedTags.length){
+        res.send({message: "Given tag(s) are not valid"});
+      }
+      else{
+        connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, result) {
+          insertedId = result.insertId;
+          str = "";
+          for (var i = 0; i < splittedTags.length; i++) {
+            str += "('" + insertedId + "', '" + rows[i].tag_id + "')";
+            if(i != splittedTags.length - 1)
+              str += ", ";
+          }
+          console.log(str);
+          connection.query("insert into post_tag(post_id, tag_id) values " + str, function(err, result) {
+            if(err)
+              console.log(err);
+          });
+          connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
+            if(err)
+              console.log(err)
+            ;
+          });
+          res.send({
+            redirect: "/"
+          });
+        });
+      }
+    });
+
+
+    /*connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
       insertedId = rows.insertId;
       if (err) {
         res.send({
@@ -292,7 +334,7 @@ app.post('/askQuestion', function(req, res, next) {
           });
         }
       }
-    });
+    });*/
   }
 });
 
