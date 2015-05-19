@@ -74,6 +74,26 @@ app.get('/popular', function(req, res, next) {
   });
 });
 
+app.get('/statistics', function(req, res, next) {
+  sess = req.session;
+  var id = sess.user_id;
+  var check = 0;
+  var name = sess.user_name;
+  connection.query("Select user_name, MAX(reputation) as rep from User where userType_id =" + check + " group by user_name order by rep desc limit 5", function(err, highestRepPeople) {
+    connection.query("Select H.user_id, U.user_name, count(H.post_id) as Count from has_post H, User U where H.user_id = U.user_id group by H.user_id having Count > 10 order by Count desc limit 10", function(err2, poster) {
+      if (err)
+        console.log(err);
+      if (err2)
+        console.log(err2);
+      console.log(poster);
+      res.render('Statistics', {
+        highestRepPeople: highestRepPeople,
+        poster: poster
+      });
+    });
+  });
+});
+
 app.get('/register', function(req, res, next) {
   res.render('register');
 });
@@ -278,6 +298,8 @@ app.get('/question:id', function(req, res, next) {
   var comments = new Array();
   var a = req.params.id.split(':');
   var favourited = 0;
+  var hasAcceptedAnswer = 0;
+  var ownerOfQuestion = 0;
   if (!user_id)
     user_id = 0;
   connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
@@ -290,57 +312,71 @@ app.get('/question:id', function(req, res, next) {
         }
         connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = " + a[1], function(err, tags) {
           connection.query("Select * from favourites where user_id = " + user_id + " and post_id =" + a[1] + "", function(err, favouriteResult) {
-            if (err)
-              console.log(err);
-            console.log(user_id);
-            console.log(a[1]);
-            console.log(favouriteResult);
-            if (favouriteResult.length > 0) {
-              console.log("Girdim");
-              favourited = 1;
-            }
+            connection.query("Select * from has_post where user_id = " + user_id + " and post_id = " + a[1] + "", function(err, ownerQuestion) {
+              connection.query("Select acceptedAnswer_id from hasAcceptedAnswer where post_id = " + a[1] + "", function(err, acceptedAnswer) {
+                if (favouriteResult.length > 0) {
+                  favourited = 1;
+                }
 
-            var count = 0;
-            for (var i = 0; i < children.length; i++) {
-              if (children[i].post_type == 'A') {
-                count++;
-                connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
-                  if (err) {
-                    console.log(err);
-                  }
-                  count--;
-                  comments.push(childchild);
-                  if (count == 0) {
-                    res.render('question', {
-                      rows: rows,
-                      children: children,
-                      comments: comments,
-                      login: name,
-                      tags: tags,
-                      favourited: favourited,
-                      userType: sess.userType
+                if (ownerQuestion.length > 0) {
+                  ownerOfQuestion = 1;
+                }
+
+                if (acceptedAnswer.length > 0) {
+                  hasAcceptedAnswer = acceptedAnswer[0].acceptedAnswer_id;
+                }
+
+                var count = 0;
+                for (var i = 0; i < children.length; i++) {
+                  if (children[i].post_type == 'A') {
+                    count++;
+                    connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+                      if (err) {
+                        console.log(err);
+                      }
+                      count--;
+                      comments.push(childchild);
+                      if (count == 0) {
+                        res.render('question', {
+                          rows: rows,
+                          children: children,
+                          comments: comments,
+                          login: name,
+                          tags: tags,
+                          favourited: favourited,
+                          hasAcceptedAnswer: hasAcceptedAnswer,
+                          ownerOfQuestion: ownerOfQuestion,
+                          userType: sess.userType
+                        });
+                      }
                     });
+
                   }
-                });
-              }
-            }
-            if (count == 0) {
-              res.render('question', {
-                rows: rows,
-                children: children,
-                comments: comments,
-                login: name,
-                tags: tags,
-                favourited: favourited,
-                userType: sess.userType
+                }
+
+                if (count == 0) {
+                  res.render('question', {
+                    rows: rows,
+                    children: children,
+                    comments: comments,
+                    login: name,
+                    tags: tags,
+                    favourited: favourited,
+                    hasAcceptedAnswer: hasAcceptedAnswer,
+                    ownerOfQuestion: ownerOfQuestion,
+                    userType: sess.userType
+                  });
+                }
               });
-            }
+            });
           });
         });
       });
     });
   });
 });
+
+
 
 app.get('/profile', function(req, res, next) {
   sess = req.session;
@@ -492,7 +528,24 @@ app.post('/downvote', function(req, res, next) {
   });
 });
 
-
+app.post('/acceptAnswer', function(req, res, next) {
+  var postId = req.body.postId;
+  console.log(postId);
+  connection.query("Select parent_id from has_parent where post_id = " + postId + "", function(err, parentId) {
+    console.log(parentId[0].parent_id);
+    connection.query("insert into hasAcceptedAnswer values (" + parentId[0].parent_id + ", " + postId + ")", function(err, hasAnswer) {
+      connection.query("Select * from has_post where post_id = " + postId + "", function(err, ownerAnswer) {
+        connection.query("UPDATE User SET reputation = reputation + 15 where user_id = " + ownerAnswer[0].user_id + "", function(err, repUser) {
+          if (err)
+            console.log(err);
+          res.send({
+            redirect: "/question:" + parentId[0].parent_id
+          });
+        });
+      });
+    });
+  });
+});
 
 
 app.get('/profile', function(req, res, next) {
@@ -538,9 +591,9 @@ app.post("/search", function(req, res, next) {
   });
 });
 
-app.post("/deletePost", function(req, res, next){
+app.post("/deletePost", function(req, res, next) {
   var postId = req.body.postId;
-  connection.query("delete from Post where post_id = ?", [postId], function(err, rows){
+  connection.query("delete from Post where post_id = ?", [postId], function(err, rows) {
     res.send(rows);
   });
 });
