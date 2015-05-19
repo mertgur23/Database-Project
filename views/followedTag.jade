@@ -7,7 +7,32 @@ block content
 			a(href="/popular") Popular
 		li(role="presentation" class="active")
 			a(href="/followedTag") Followed Tags
-
+	div(class="row") My Followed Tags: 
+		-each tag in foltags 
+			p 
+				= tag.name
+	div(class="row")
+		div(class="col-md-3 ask-col") Select Category to Follow or Add Tag			
+			div(class="input-group-btn2")
+				button(class="btn dropdown-toggle" data-toggle="dropdown") Categories
+					span(class="caret")
+				ul(class="dropdown-menu" id="dropdown-menu2" role="menu" aria-labelledby="dropdownMenu")
+					- for (var i = 0; i < categ.length; ++i) {
+						li(role="menuitem" tabindex="-1" align="left") #{categ[i].category_name}
+					- }	
+	div(class="row")
+		div(class="col-md-3 ask-col") Available Tags:				
+			field(id="tags_available2")
+	div(class="row")
+		p Enter Tags to Follow:
+			input(type="text" class="form-control" id="tags-area2")
+		div(class="col-md-3 ask-col")
+			button(class="btn", id="followTags") Follow
+	div(class="row")
+		p Enter Tags to Add:
+			input(type="text" class="form-control" id="tags-area3")
+		div(class="col-md-3 ask-col")
+			button(class="btn", id="addTags") Add		
 	- for (var i = 0; i < rows.length; ++i) {
 			div(class="thumbnail")
 				div(class="caption")

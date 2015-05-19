@@ -185,6 +185,57 @@ $(document).ready(function() {
       }, "json");
   });
 
+  $("#dropdown-menu2 li").click(function(){
+    var cat = $(this).text();
+      $(this).parents(".input-group-btn2").find('.btn').text(cat);
+      $.post("getTag", {cat: cat}, function(data){
+        if(data.tags)
+        {
+          var total_tags =[];
+          for(var i = 0; i < data.tags.length; i++)
+          {
+            total_tags.push(data.tags[i].name);
+          }
+          $("#tags_available2").text(total_tags);
+        }
+      }, "json");
+  });
+
+  $("#followTags").click(function() {
+    var tags = $("#tags-area2").val();
+    if(tags.length == 0)
+      alert("Please enter at least one tag to follow");
+    else{
+      $.post("followTag", {tags: tags}, function(data){
+        if(data.message){
+              alert(data.message);
+          }
+        if(data.redirect){
+          $(location).attr('pathname',data.redirect);
+        }
+      }, "json");
+    }
+  });
+
+  $("#addTags").click(function() {
+    var tags = $("#tags-area3").val();
+    var category = $("#dropdown-menu2 li").parents(".input-group-btn2").find('.btn').text();
+    if( category == "Categories")
+      alert("Please select a category to add tag");
+    else if(tags.length == 0)
+      alert("Please enter at least one tag to add");
+    else{
+      $.post("addTag", {tags: tags, category: category}, function(data){
+        if(data.message){
+              alert(data.message);
+          }
+        if(data.redirect){
+          $(location).attr('pathname',data.redirect);
+        }
+      }, "json");
+    }
+  });
+
 
 });
 
