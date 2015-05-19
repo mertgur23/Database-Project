@@ -259,7 +259,6 @@ app.post('/askQuestion', function(req, res, next) {
         str += ", ";
     }
     str += ")";
-    console.log(str);
     connection.query("select tag_id from Tag where name in " + str, function(err, rows) {
       if (err) {
         console.log(err);
@@ -303,34 +302,40 @@ app.post('/followTag', function(req, res, next) {
   var splittedTags = tags.split(" ");
   var index = 0;
   if (userid) {
+    var str = "(";
     for (var i = 0; i < splittedTags.length; i++) {
-      connection.query("select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result) {
-        if (err)
-          console.log(err);
-        if (result.length == 0)
-          res.send({
-            message: "Given tag(s) are not valid",
-            redirect: '/followedTag'
-          });
-        else {
-          connection.query("insert into follow values(" + userid + ", " + result[0].tag_id + ")", function(err2, result2) {
-            if (err2) {
-              res.send({
-                redirect: "/followedTag",
-                message: "You can't follow tags you already follow"
-              });
-              return;
-            } else
-              index = index + 1;
-            if (index == splittedTags.length) {
-              res.send({
-                redirect: "/followedTag"
-              });
-            }
-          });
-        }
-      });
+      str += "'" + splittedTags[i] + "'";
+      if (i != splittedTags.length - 1)
+        str += ", ";
     }
+    str += ")";
+    connection.query("select tag_id from Tag where name in " + str, function(err, rows) {
+      if (err) {
+        console.log(err);
+      }
+      if (rows.length != splittedTags.length) {
+        res.send({
+          message: "Given tag(s) are not valid"
+        });
+      }
+      else {
+        str = "";
+        for (var i = 0; i < splittedTags.length; i++) {
+          str += "('" + userid + "', '" + rows[i].tag_id + "')";
+          if (i != splittedTags.length - 1)
+            str += ", ";
+        }
+        connection.query("insert into follow values " + str, function(err2, result2) {
+          if (err2) {
+            res.send({
+              message: "You can't follow tags you already follow"
+            });
+          }
+          else
+            res.send({redirect: "/followedTag"}); 
+        });
+      }
+    });
   }
 });
 
@@ -350,30 +355,28 @@ app.post('/addTag', function(req, res, next) {
           if (err2)
             console.log(err2);
           else {
+            var str = "(";
             for (var i = 0; i < splittedTags.length; i++) {
-              console.log(splittedTags[i]);
-              connection.query("insert into Tag(name) values ('" + splittedTags[i] + "')", function(err3, newtag) {
-                if (err3) {
-                  console.log(err3);
-                  res.send({
-                    message: "Given tag already exists in the system",
-                    redirect: "/followedTag"
-                  });
-                } else {
-                  var insertedTagId = newtag.insertId;
-                  connection.query("insert into has_tag(category_id, tag_id) values(" + cat_id[0].category_id + "," + insertedTagId + ")", function(err4, result4) {
-                    if (err4)
-                      console.log(err4);
-                    else
-                      index = index + 1;
-                    if (index == splittedTags.length)
-                      res.send({
-                        redirect: "/followedTag"
-                      });
-                  });
-                }
-              });
+              str += "'" + splittedTags[i] + "'";
+              if (i != splittedTags.length - 1)
+                str += ", ";
             }
+            str += ")";
+            connection.query("insert into Tag(name) values " + str, function(err3, newtag) {
+              if (err3) {
+                res.send({
+                  message: "Given tag(s) already exist in the system",
+                });
+              } else {
+                var insertedTagId = newtag.insertId;
+                connection.query("insert into has_tag(category_id, tag_id) values(" + cat_id[0].category_id + "," + insertedTagId + ")", function(err4, result4) {
+                  if (err4)
+                    console.log(err4);
+                  else
+                    res.send({ redirect: "/followedTag"});
+                });
+              }
+            });
           }
         });
       } else {

@@ -88,18 +88,35 @@ $(document).ready(function() {
     } else if (splittedTags.length > 5) {
       alert("You can give at most 5 tags");
     } else {
-      $.post("askQuestion", {
-        title: title,
-        text: text,
-        tags: tags
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
+      var duplicate = 0;
+      for(var i = 0; i < splittedTags.length - 1; i++)
+      {
+        for(var j = i + 1; j < splittedTags.length; j++)
+        {
+          if(splittedTags[i] == splittedTags[j])
+          {
+            duplicate = 1;
+            break;
+          }
         }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+      }
+      if(duplicate == 0)
+      {
+        $.post("askQuestion", {
+          title: title,
+          text: text,
+          tags: tags
+        }, function(data) {
+          if (data.message) {
+            alert(data.message);
+          }
+          if (data.redirect) {
+            $(location).attr('pathname', data.redirect);
+          }
+        }, "json");
+      }
+      else
+        alert("Do not provide same tags");
     }
   });
 
@@ -224,16 +241,34 @@ $(document).ready(function() {
     if (tags.length == 0)
       alert("Please enter at least one tag to follow");
     else {
-      $.post("followTag", {
-        tags: tags
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
+      var splittedTags = tags.split(" ");
+      var duplicate = 0;
+      for(var i = 0; i < splittedTags.length - 1; i++)
+      {
+        for(var j = i + 1; j < splittedTags.length; j++)
+        {
+          if(splittedTags[i] == splittedTags[j])
+          {
+            duplicate = 1;
+            break;
+          }
         }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+      }
+      if(duplicate == 0)
+      {
+        $.post("followTag", {
+          tags: tags
+        }, function(data) {
+          if (data.message) {
+            alert(data.message);
+          }
+          if (data.redirect) {
+            $(location).attr('pathname', data.redirect);
+          }
+        }, "json");
+      }
+      else
+        alert("Do not provide same tags"); 
     }
   });
 
@@ -245,17 +280,35 @@ $(document).ready(function() {
     else if (tags.length == 0)
       alert("Please enter at least one tag to add");
     else {
-      $.post("addTag", {
-        tags: tags,
-        category: category
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
+      var splittedTags = tags.split(" ");
+      var duplicate = 0;
+      for(var i = 0; i < splittedTags.length - 1; i++)
+      {
+        for(var j = i + 1; j < splittedTags.length; j++)
+        {
+          if(splittedTags[i] == splittedTags[j])
+          {
+            duplicate = 1;
+            break;
+          }
         }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+      }
+      if(duplicate == 0)
+      {
+        $.post("addTag", {
+          tags: tags,
+          category: category
+        }, function(data) {
+          if (data.message) {
+            alert(data.message);
+          }
+          if (data.redirect) {
+            $(location).attr('pathname', data.redirect);
+          }
+        }, "json");
+      }
+      else
+        alert("Do not provide same tags");
     }
   });
   $('#search-area').keypress(function(e) {
