@@ -156,24 +156,24 @@ app.post('/register', function(req, res, next) {
   });
 });
 
-app.post('/favourite', function(req, res, next){
+app.post('/favourite', function(req, res, next) {
   var user_id = sess.user_id;
   var post_id = req.body.post_id;
-  connection.query("insert into favourites values (" + user_id + ", " + post_id + ")", function(err, insertFavourite){
+  connection.query("insert into favourites values (" + user_id + ", " + post_id + ")", function(err, insertFavourite) {
     res.send({
-        redirect: "/question:" + post_id
+      redirect: "/question:" + post_id
     });
   });
 });
 
-app.post('/unfavourite', function(req, res, next){
+app.post('/unfavourite', function(req, res, next) {
   var user_id = sess.user_id;
   var post_id = req.body.post_id;
   console.log(user_id);
   console.log(post_id);
-  connection.query("DELETE FROM favourites where user_id = " + user_id + " and post_id = " + post_id , function(err, deleteFavourite){
+  connection.query("DELETE FROM favourites where user_id = " + user_id + " and post_id = " + post_id, function(err, deleteFavourite) {
     res.send({
-        redirect: "/question:" + post_id
+      redirect: "/question:" + post_id
     });
   });
 });
@@ -181,7 +181,7 @@ app.post('/unfavourite', function(req, res, next){
 app.post('/login', function(req, res, next) {
   var username = req.body.username;
   var password = req.body.password;
-  connection.query("select user_name, user_id from User where user_name = '" + username + "' and password = '" + password + "'", function(err, rows) {
+  connection.query("select user_name, user_id, userType_id from User where user_name = '" + username + "' and password = '" + password + "'", function(err, rows) {
     if (err) {
       res.send({
         message: "Error"
@@ -194,6 +194,7 @@ app.post('/login', function(req, res, next) {
       sess = req.session;
       sess.user_name = username;
       sess.user_id = rows[0].user_id;
+      sess.userType = rows[0].userType_id;
       res.send({
         redirect: "/"
       });
@@ -223,36 +224,40 @@ app.post('/askQuestion', function(req, res, next) {
   var valid = 1;
   var index = 0;
   var i;
-  if (userid)
-  {
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows){
+  if (userid) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
       insertedId = rows.insertId;
       if (err) {
-        res.send({message: "Error"});
+        res.send({
+          message: "Error"
+        });
       } else {
-        for(i = 0; i < splittedTags.length; i++)
-        {
-          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result){
-            if(err)
+        for (i = 0; i < splittedTags.length; i++) {
+          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result) {
+            if (err)
               console.log(err);
-            if(result.length == 0){
-              res.send({message:"Given tag(s) are not valid", redirect:'/ask'});
-            }
-            else
-            {
-              connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + result[0].tag_id + ")", function(err2, result2){
+            if (result.length == 0) {
+              res.send({
+                message: "Given tag(s) are not valid",
+                redirect: '/ask'
+              });
+            } else {
+              connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + result[0].tag_id + ")", function(err2, result2) {
                 if (err2)
                   console.log(err2);
                 else
                   index = index + 1;
-                if(index == splittedTags.length)
-                {
+                if (index == splittedTags.length) {
                   console.log("Girdim");
                   connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
                     if (err) {
-                      res.send({message: "Error"});
+                      res.send({
+                        message: "Error"
+                      });
                     } else {
-                      res.send({redirect: "/"});
+                      res.send({
+                        redirect: "/"
+                      });
                     }
                   });
                 }
@@ -284,14 +289,13 @@ app.get('/question:id', function(req, res, next) {
           });
         }
         connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = " + a[1], function(err, tags) {
-          connection.query("Select * from favourites where user_id = " + user_id + " and post_id =" + a[1] +"", function(err,favouriteResult){
+          connection.query("Select * from favourites where user_id = " + user_id + " and post_id =" + a[1] + "", function(err, favouriteResult) {
             if (err)
-                console.log(err);
+              console.log(err);
             console.log(user_id);
             console.log(a[1]);
             console.log(favouriteResult);
-            if(favouriteResult.length > 0)
-            {
+            if (favouriteResult.length > 0) {
               console.log("Girdim");
               favourited = 1;
             }
@@ -301,37 +305,39 @@ app.get('/question:id', function(req, res, next) {
               if (children[i].post_type == 'A') {
                 count++;
                 connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
-                    if (err) {
-                      console.log(err);
-                    }
-                    count--;
-                    comments.push(childchild);
-                    if (count == 0) {
-                      res.render('question', {
-                        rows: rows,
-                        children: children,
-                        comments: comments,
-                        login: name,
-                        tags: tags,
-                        favourited : favourited
-                      });
-                    }
+                  if (err) {
+                    console.log(err);
+                  }
+                  count--;
+                  comments.push(childchild);
+                  if (count == 0) {
+                    res.render('question', {
+                      rows: rows,
+                      children: children,
+                      comments: comments,
+                      login: name,
+                      tags: tags,
+                      favourited: favourited,
+                      userType: sess.userType
+                    });
+                  }
                 });
+              }
             }
-          }
-          if (count == 0) {
-            res.render('question', {
-              rows: rows,
-              children: children,
-              comments: comments,
-              login: name,
-              tags: tags,
-              favourited: favourited
-            });
-          }
+            if (count == 0) {
+              res.render('question', {
+                rows: rows,
+                children: children,
+                comments: comments,
+                login: name,
+                tags: tags,
+                favourited: favourited,
+                userType: sess.userType
+              });
+            }
+          });
         });
       });
-     });
     });
   });
 });
@@ -517,6 +523,26 @@ app.post('/getTag', function(req, res, next) {
       }
     });
   }
+});
+
+app.post("/search", function(req, res, next) {
+  var user_id = sess.user_id;
+  var searchText = '%' + req.body.searchText + '%';
+  var data = [searchText, searchText];
+  connection.query("SELECT * FROM Post P, has_post H, User U WHERE (P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id) and (text LIKE ? or title LIKE ?)", data, function(err, result) {
+    console.log(data);
+    res.render("searchResult", {
+      rows: result,
+      login: sess.user_name
+    });
+  });
+});
+
+app.post("/deletePost", function(req, res, next){
+  var postId = req.body.postId;
+  connection.query("delete from Post where post_id = ?", [postId], function(err, rows){
+    res.send(rows);
+  });
 });
 
 

@@ -74,27 +74,28 @@ $(document).ready(function() {
     }, "json");
   });
 
- $("#askQuestionButton").click(function(){
+  $("#askQuestionButton").click(function() {
     var title = $("#questionTitle").val();
     var text = $("#questionText").val();
     var tags = $("#tags-area").val();
-    if(title.length < 5){
+    if (title.length < 5) {
       alert("Title must be at least 5 character");
-    }
-    else if(text < 20){
+    } else if (text < 20) {
       alert("Question must be at least 20 character");
-    }
-    else if(tags.length == 0){
+    } else if (tags.length == 0) {
       alert("Please enter at least one tag");
-    }
-    else{
-      $.post("askQuestion", {title: title, text: text, tags: tags}, function(data){
-        if(data.message){
-              alert(data.message);
-          }
-          if(data.redirect){
-            $(location).attr('pathname',data.redirect);
-          }
+    } else {
+      $.post("askQuestion", {
+        title: title,
+        text: text,
+        tags: tags
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
       }, "json");
     }
   });
@@ -143,48 +144,74 @@ $(document).ready(function() {
 
   $(".upvoteButton").click(function() {
     var postId = $(this).attr("data-post_id");
-     $.post("upvote", {
+    $.post("upvote", {
       postId: postId
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+    }, function(data) {
+      if (data.message) {
+        alert(data.message);
+      }
+      if (data.redirect) {
+        $(location).attr('pathname', data.redirect);
+      }
+    }, "json");
   });
 
   $(".downvoteButton").click(function() {
     var postId = $(this).attr("data-post_id");
-     $.post("downvote", {
+    $.post("downvote", {
       postId: postId
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+    }, function(data) {
+      if (data.message) {
+        alert(data.message);
+      }
+      if (data.redirect) {
+        $(location).attr('pathname', data.redirect);
+      }
+    }, "json");
   });
 
-  $(".dropdown-menu li").click(function(){
+  $(".dropdown-menu li").click(function() {
     var cat = $(this).text();
-      $(this).parents(".input-group-btn").find('.btn').text(cat);
-      $.post("getTag", {cat: cat}, function(data){
-        if(data.tags)
-        {
-          var total_tags =[];
-          for(var i = 0; i < data.tags.length; i++)
-          {
-            total_tags.push(data.tags[i].name);
-          }
-          $("#tags_available").text(total_tags);
+    $(this).parents(".input-group-btn").find('.btn').text(cat);
+    $.post("getTag", {
+      cat: cat
+    }, function(data) {
+      if (data.tags) {
+        var total_tags = [];
+        for (var i = 0; i < data.tags.length; i++) {
+          total_tags.push(data.tags[i].name);
         }
-      }, "json");
+        $("#tags_available").text(total_tags);
+      }
+    }, "json");
   });
 
+  $('#search-area').keypress(function(e) {
+    var searchText = $(this).val();
+    var key = e.which;
+    if (key == 13) // the enter key code
+    {
+      e.preventDefault();
+      $.ajax({
+        url: "search",
+        type: "POST",
+        data: {searchText: searchText},
+        success: function(data){
+          console.log(data);
+          document.open();
+          document.write(data);
+          document.close();
+        }
+      });
+    }
+  });
+
+  $(".delete-button").click(function(){
+    var postId = $(this).attr("data-post_id");
+    $.post("deletePost", {postId: postId}, function(data){
+      window.location.reload(true);
+    });
+  });
 
 });
 
