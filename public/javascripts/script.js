@@ -280,6 +280,12 @@ $(document).ready(function() {
     });
   });
 
+  $(".delete-button-question").click(function(){
+    var postId = $(this).attr("data-post_id");
+    $.post("deletePost", {postId: postId}, function(data){
+      $(location).attr('pathname',"/");
+    });
+  });
 
 });
 

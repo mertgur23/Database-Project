@@ -121,11 +121,11 @@ app.get('/followedTag', function(req, res, next) {
   var id = sess.user_id;
   if (id) {
     connection.query("Select * from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id=" + id + " and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err, rows) {
-      connection.query("Select * from follow F, Tag T where F.tag_id = T.tag_id and F.user_id="+id, function(err2, foltags){
-        connection.query("Select category_name from Categories", function(err, categ){
+      connection.query("Select * from follow F, Tag T where F.tag_id = T.tag_id and F.user_id=" + id, function(err2, foltags) {
+        connection.query("Select category_name from Categories", function(err, categ) {
           if (err)
             console.log(err);
-          if( err2)
+          if (err2)
             console.log(err2);
 
           res.render('followedTag', {
@@ -137,8 +137,7 @@ app.get('/followedTag', function(req, res, next) {
         });
       });
     });
-  }
-  else
+  } else
     res.redirect("/login");
 });
 
@@ -252,19 +251,17 @@ app.post('/askQuestion', function(req, res, next) {
   var splittedTags = tags.split(" ");
   var insertedId;
   var index = 0;
-  if (userid)
-  {
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows){
+  if (userid) {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
       insertedId = rows.insertId;
       if (err) {
         res.send({
           message: "Error"
         });
       } else {
-        for(var i = 0; i < splittedTags.length; i++)
-        {
-          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result){
-            if(err)
+        for (var i = 0; i < splittedTags.length; i++) {
+          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result) {
+            if (err)
               console.log(err);
             if (result.length == 0) {
               res.send({
@@ -277,8 +274,7 @@ app.post('/askQuestion', function(req, res, next) {
                   console.log(err2);
                 else
                   index = index + 1;
-                if(index == splittedTags.length)
-                {
+                if (index == splittedTags.length) {
                   connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
                     if (err) {
                       res.send({
@@ -300,35 +296,37 @@ app.post('/askQuestion', function(req, res, next) {
   }
 });
 
-app.post('/followTag', function(req, res, next)
-{
+app.post('/followTag', function(req, res, next) {
   sess = req.session;
   var userid = sess.user_id;
   var tags = req.body.tags;
   console.log(tags);
   var splittedTags = tags.split(" ");
   var index = 0;
-  if(userid)
-  {
-    for(var i = 0; i < splittedTags.length; i++)
-    {
-      connection.query("select tag_id from Tag where name='"+ splittedTags[i] + "'", function(err, result){
-        if(err)
+  if (userid) {
+    for (var i = 0; i < splittedTags.length; i++) {
+      connection.query("select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result) {
+        if (err)
           console.log(err);
-        if(result.length == 0)
-          res.send({message:"Given tag(s) are not valid", redirect:'/followedTag'});
-        else{
-          connection.query("insert into follow values(" + userid + ", " + result[0].tag_id + ")", function(err2, result2)
-          {
-            if(err2){
-              res.send({redirect:"/followedTag", message: "You can't follow tags you already follow"});
+        if (result.length == 0)
+          res.send({
+            message: "Given tag(s) are not valid",
+            redirect: '/followedTag'
+          });
+        else {
+          connection.query("insert into follow values(" + userid + ", " + result[0].tag_id + ")", function(err2, result2) {
+            if (err2) {
+              res.send({
+                redirect: "/followedTag",
+                message: "You can't follow tags you already follow"
+              });
               return;
-            }
-            else
+            } else
               index = index + 1;
-            if(index == splittedTags.length)
-            {
-              res.send({redirect:"/followedTag"});
+            if (index == splittedTags.length) {
+              res.send({
+                redirect: "/followedTag"
+              });
             }
           });
         }
@@ -337,56 +335,53 @@ app.post('/followTag', function(req, res, next)
   }
 });
 
-app.post('/addTag', function(req, res, next)
-{
+app.post('/addTag', function(req, res, next) {
   sess = req.session;
   var userid = sess.user_id;
   var category = req.body.category;
   var tags = req.body.tags;
   var splittedTags = tags.split(" ");
   var index = 0;
-  if(userid)
-  {
-    connection.query("select reputation from User where user_id="+userid, function(err, result)
-    {
-      if(err)
+  if (userid) {
+    connection.query("select reputation from User where user_id=" + userid, function(err, result) {
+      if (err)
         console.log(err);
-      else if (result[0].reputation >= 150)
-      {
-        connection.query("select category_id from Categories where category_name='"+category+"'", function(err2, cat_id)
-        {
-          if(err2)
+      else if (result[0].reputation >= 150) {
+        connection.query("select category_id from Categories where category_name='" + category + "'", function(err2, cat_id) {
+          if (err2)
             console.log(err2);
-          else
-          {
-            for(var i = 0; i < splittedTags.length; i++)
-            {
+          else {
+            for (var i = 0; i < splittedTags.length; i++) {
               console.log(splittedTags[i]);
-              connection.query("insert into Tag(name) values ('"+ splittedTags[i] + "')", function(err3, newtag){
-                if(err3){
+              connection.query("insert into Tag(name) values ('" + splittedTags[i] + "')", function(err3, newtag) {
+                if (err3) {
                   console.log(err3);
-                  res.send({message: "Given tag already exists in the system", redirect:"/followedTag"});
-                }
-                else
-                {
+                  res.send({
+                    message: "Given tag already exists in the system",
+                    redirect: "/followedTag"
+                  });
+                } else {
                   var insertedTagId = newtag.insertId;
-                  connection.query("insert into has_tag(category_id, tag_id) values(" + cat_id[0].category_id + ","+ insertedTagId +")", function(err4, result4){
-                  if(err4)
-                    console.log(err4);
-                  else
-                    index = index + 1;
-                  if(index == splittedTags.length)
-                    res.send({redirect:"/followedTag"});
+                  connection.query("insert into has_tag(category_id, tag_id) values(" + cat_id[0].category_id + "," + insertedTagId + ")", function(err4, result4) {
+                    if (err4)
+                      console.log(err4);
+                    else
+                      index = index + 1;
+                    if (index == splittedTags.length)
+                      res.send({
+                        redirect: "/followedTag"
+                      });
                   });
                 }
               });
             }
           }
         });
-      }
-      else
-      {
-        res.send({redirect:"/followedTag", message:"Your reputation is not enough to add tag to system"});
+      } else {
+        res.send({
+          redirect: "/followedTag",
+          message: "Your reputation is not enough to add tag to system"
+        });
       }
     });
   }
@@ -432,30 +427,29 @@ app.get('/question:id', function(req, res, next) {
 
                 var count = 0;
                 for (var i = 0; i < children.length; i++) {
-                  if (children[i].post_type == 'A') {
-                    count++;
-                    connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
-                      if (err) {
-                        console.log(err);
-                      }
-                      count--;
-                      comments.push(childchild);
-                      if (count == 0) {
-                        res.render('question', {
-                          rows: rows,
-                          children: children,
-                          comments: comments,
-                          login: name,
-                          tags: tags,
-                          favourited: favourited,
-                          hasAcceptedAnswer: hasAcceptedAnswer,
-                          ownerOfQuestion: ownerOfQuestion,
-                          userType: sess.userType
-                        });
-                      }
-                    });
+                  count++;
+                  connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+                    if (err) {
+                      console.log(err);
+                    }
+                    count--;
+                    comments.push(childchild);
+                    if (count == 0) {
+                      res.render('question', {
+                        rows: rows,
+                        children: children,
+                        comments: comments,
+                        login: name,
+                        tags: tags,
+                        favourited: favourited,
+                        hasAcceptedAnswer: hasAcceptedAnswer,
+                        ownerOfQuestion: ownerOfQuestion,
+                        userType: sess.userType
+                      });
+                    }
+                  });
 
-                  }
+
                 }
 
                 if (count == 0) {
@@ -701,6 +695,7 @@ app.post("/deletePost", function(req, res, next) {
     res.send(rows);
   });
 });
+
 
 
 // catch 404 and forward to error handler

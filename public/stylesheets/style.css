@@ -88,3 +88,7 @@ body {
 .delete-button{
   float: right;
 }
+
+.delete-button-question{
+  float: right;
+}
