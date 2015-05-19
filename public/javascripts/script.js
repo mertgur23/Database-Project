@@ -78,12 +78,15 @@ $(document).ready(function() {
     var title = $("#questionTitle").val();
     var text = $("#questionText").val();
     var tags = $("#tags-area").val();
+    var splittedTags = tags.split(" ");
     if (title.length < 5) {
       alert("Title must be at least 5 character");
     } else if (text < 20) {
       alert("Question must be at least 20 character");
     } else if (tags.length == 0) {
       alert("Please enter at least one tag");
+    } else if (splittedTags.length > 5) {
+      alert("You can give at most 5 tags");
     } else {
       $.post("askQuestion", {
         title: title,
