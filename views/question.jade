@@ -9,6 +9,9 @@ block content
 			button(type="button" id= "unfavouriteQuestion" class="btn btn-danger") Unfavourite
 	div(class="thumbnail bordercolor")
 		div(class="thumbnail" id="questionId" #{})
+			if userType == 1
+				button(type="button" class="btn btn-default delete-button" data-post_id = '#{rows[0].post_id}' aria-label="Left Align")
+					span(class="glyphicon glyphicon glyphicon-trash score-down" aria-hidden="true")
 			div(class="row")
 				div(class = "col-md-1")
 					a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{rows[0].post_id}')
@@ -33,9 +36,13 @@ block content
 					- for(var j = 0; j < tags.length; j++){
 						h7  #{tags[j].name}	
 					- }
+
 		- for (var i = 0; i < children.length; ++i) {
 			if children[i].post_type == 'Q_C'
 				div(class="thumbnail")
+					if userType == 1
+						button(type="button" class="btn btn-default delete-button" data-post_id = '#{children[i].post_id}' aria-label="Left Align")
+							span(class="glyphicon glyphicon glyphicon-trash score-down" aria-hidden="true")
 					div(class="row")
 						div(class = "col-md-12")
 							p #{children[i].text}
@@ -49,6 +56,9 @@ block content
 		if children[i].post_type == 'A'
 			div(class="thumbnail bordercolor")
 				div(class="thumbnail")
+					if userType == 1
+						button(type="button" class="btn btn-default delete-button" data-post_id = '#{children[i].post_id}' aria-label="Left Align")
+							span(class="glyphicon glyphicon glyphicon-trash score-down" aria-hidden="true")
 					div(class="row")
 						div(class = "col-md-1")
 							a(class="btn btn-default arrow-but upvoteButton" role="button" data-post_id = '#{children[i].post_id}')
@@ -59,6 +69,21 @@ block content
 							else
 								h3(class="score-up point") 
 									strong #{children[i].total_like}
+							if ownerOfQuestion
+								if !hasAcceptedAnswer
+									a(class="btn btn-default arrow-but answerSelect"  role="button" data-post_id = '#{children[i].post_id}')
+										<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+								else
+									if children[i].post_id == hasAcceptedAnswer
+										a(class="btn btn-default arrow-but" role="button" data-post_id = '#{children[i].post_id}')
+											<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+							else
+								if hasAcceptedAnswer
+									if children[i].post_id == hasAcceptedAnswer
+										a(class="btn btn-default arrow-but" role="button" data-post_id = '#{children[i].post_id}')
+											<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+
+
 							a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 								<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 						div(class = "col-md-11")
@@ -70,6 +95,9 @@ block content
 								h7  #{children[i].user_name}
 				- for (var j = 0; j < comments[i].length; ++j) {
 						div(class="thumbnail")
+							if userType == 1
+								button(type="button" class="btn btn-default delete-button" data-post_id = '#{comments[i][j].post_id}' aria-label="Left Align")
+									span(class="glyphicon glyphicon glyphicon-trash score-down" aria-hidden="true")
 							div(class="row")
 								div(class = "col-md-12")
 									p #{comments[i][j].text}

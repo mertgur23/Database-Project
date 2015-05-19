@@ -1,14 +1,5 @@
 extends layout
 block content
-	ul(class="nav nav-tabs")
-		li(role="presentation")
-			a(href="/") New
-		li(role="presentation" class="active")
-			a(href="/popular" ) Popular
-		li(role="presentation")
-			a(href="/followedTag") Followed Tags
-		li(role="presentation")
-			a(href="/statistics") Statistics	
 	- for (var i = 0; i < rows.length; ++i) {
 			div(class="thumbnail")
 				div(class="caption")
@@ -22,7 +13,7 @@ block content
 									strong #{rows[i].total_like}
 						div(class="col-md-11")
 							a(href="/question:#{rows[i].post_id}")
-								h4(class = "question-ad") #{rows[i].title}
+								h4(class = "question-ad") #{rows[i].title}	
 							div(class="view-number")
 								span(class="glyphicon glyphicon-eye-open" aria-hidden="true")
 								h7  #{rows[i].number_of_views}
