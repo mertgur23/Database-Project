@@ -59,6 +59,21 @@ block content
 							else
 								h3(class="score-up point") 
 									strong #{children[i].total_like}
+							if ownerOfQuestion
+								if !hasAcceptedAnswer
+									a(class="btn btn-default arrow-but" id ="answerSelect" role="button" data-post_id = '#{children[i].post_id}')
+										<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+								else
+									if children[i].post_id == hasAcceptedAnswer
+										a(class="btn btn-default arrow-but" role="button" data-post_id = '#{children[i].post_id}')
+											<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+							else
+								if hasAcceptedAnswer
+									if children[i].post_id == hasAcceptedAnswer
+										a(class="btn btn-default arrow-but" role="button" data-post_id = '#{children[i].post_id}')
+											<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+
+
 							a(class="btn btn-default arrow-but downvoteButton" role="button" data-post_id = '#{children[i].post_id}')
 								<span class="glyphicon glyphicon-chevron-down arrow" aria-hidden="true"></span>
 						div(class = "col-md-11")

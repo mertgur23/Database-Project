@@ -169,6 +169,20 @@ $(document).ready(function() {
       }, "json");
   });
 
+  $("#answerSelect").click(function() {
+    var postId = $(this).attr("data-post_id");
+     $.post("acceptAnswer", {
+      postId: postId
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
+        }
+      }, "json");
+  });
+
   $(".dropdown-menu li").click(function(){
     var cat = $(this).text();
       $(this).parents(".input-group-btn").find('.btn').text(cat);

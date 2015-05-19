@@ -1,0 +1,29 @@
+extends layout
+block content
+	ul(class="nav nav-tabs")
+		li(role="presentation")
+			a(href="/#") New
+		li(role="presentation")
+			a(href="/popular") Popular
+		li(role="presentation")
+			a(href="/followedTag") Followed Tags
+		li(role="presentation" class="active")
+			a(href="/statistics") Statistics	
+	h3 5 Users With Most Reputation Points
+	- for (var i = 0; i < highestRepPeople.length; ++i) {
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							h4 Username:#{highestRepPeople[i].user_name} Reputation:#{highestRepPeople[i].rep}							
+	- }
+
+	h3 People With More Than 10 Post
+	- for (var i = 0; i < poster.length; ++i) {
+			div(class="thumbnail")
+				div(class="caption")
+					div(class="row")
+						div(class="col-md-1")
+							h4 Username:#{poster[i].user_name} #Post:#{poster[i].Count}							
+	- }
+
