@@ -175,19 +175,19 @@ $(document).ready(function() {
 
   $(".answerSelect").click(function() {
     var postId = $(this).attr("data-post_id");
-     $.post("acceptAnswer", {
+    $.post("acceptAnswer", {
       postId: postId
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
-      }, "json");
+    }, function(data) {
+      if (data.message) {
+        alert(data.message);
+      }
+      if (data.redirect) {
+        $(location).attr('pathname', data.redirect);
+      }
+    }, "json");
   });
 
-  $(".dropdown-menu li").click(function(){
+  $(".dropdown-menu li").click(function() {
     var cat = $(this).text();
     $(this).parents(".input-group-btn").find('.btn').text(cat);
     $.post("getTag", {
@@ -203,33 +203,35 @@ $(document).ready(function() {
     }, "json");
   });
 
-  $("#dropdown-menu2 li").click(function(){
+  $("#dropdown-menu2 li").click(function() {
     var cat = $(this).text();
-      $(this).parents(".input-group-btn2").find('.btn').text(cat);
-      $.post("getTag", {cat: cat}, function(data){
-        if(data.tags)
-        {
-          var total_tags =[];
-          for(var i = 0; i < data.tags.length; i++)
-          {
-            total_tags.push(data.tags[i].name);
-          }
-          $("#tags_available2").text(total_tags);
+    $(this).parents(".input-group-btn2").find('.btn').text(cat);
+    $.post("getTag", {
+      cat: cat
+    }, function(data) {
+      if (data.tags) {
+        var total_tags = [];
+        for (var i = 0; i < data.tags.length; i++) {
+          total_tags.push(data.tags[i].name);
         }
-      }, "json");
+        $("#tags_available2").text(total_tags);
+      }
+    }, "json");
   });
 
   $("#followTags").click(function() {
     var tags = $("#tags-area2").val();
-    if(tags.length == 0)
+    if (tags.length == 0)
       alert("Please enter at least one tag to follow");
-    else{
-      $.post("followTag", {tags: tags}, function(data){
-        if(data.message){
-              alert(data.message);
-          }
-        if(data.redirect){
-          $(location).attr('pathname',data.redirect);
+    else {
+      $.post("followTag", {
+        tags: tags
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
         }
       }, "json");
     }
@@ -238,17 +240,20 @@ $(document).ready(function() {
   $("#addTags").click(function() {
     var tags = $("#tags-area3").val();
     var category = $("#dropdown-menu2 li").parents(".input-group-btn2").find('.btn').text();
-    if( category == "Categories")
+    if (category == "Categories")
       alert("Please select a category to add tag");
-    else if(tags.length == 0)
+    else if (tags.length == 0)
       alert("Please enter at least one tag to add");
-    else{
-      $.post("addTag", {tags: tags, category: category}, function(data){
-        if(data.message){
-              alert(data.message);
-          }
-        if(data.redirect){
-          $(location).attr('pathname',data.redirect);
+    else {
+      $.post("addTag", {
+        tags: tags,
+        category: category
+      }, function(data) {
+        if (data.message) {
+          alert(data.message);
+        }
+        if (data.redirect) {
+          $(location).attr('pathname', data.redirect);
         }
       }, "json");
     }
@@ -262,8 +267,10 @@ $(document).ready(function() {
       $.ajax({
         url: "search",
         type: "POST",
-        data: {searchText: searchText},
-        success: function(data){
+        data: {
+          searchText: searchText
+        },
+        success: function(data) {
           console.log(data);
           document.open();
           document.write(data);
@@ -273,17 +280,21 @@ $(document).ready(function() {
     }
   });
 
-  $(".delete-button").click(function(){
+  $(".delete-button").click(function() {
     var postId = $(this).attr("data-post_id");
-    $.post("deletePost", {postId: postId}, function(data){
+    $.post("deletePost", {
+      postId: postId
+    }, function(data) {
       window.location.reload(true);
     });
   });
 
-  $(".delete-button-question").click(function(){
+  $(".delete-button-question").click(function() {
     var postId = $(this).attr("data-post_id");
-    $.post("deletePost", {postId: postId}, function(data){
-      $(location).attr('pathname',"/");
+    $.post("deletePost", {
+      postId: postId
+    }, function(data) {
+      $(location).attr('pathname', "/");
     });
   });
 

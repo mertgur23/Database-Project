@@ -255,36 +255,36 @@ app.post('/askQuestion', function(req, res, next) {
     var str = "(";
     for (var i = 0; i < splittedTags.length; i++) {
       str += "'" + splittedTags[i] + "'";
-      if(i != splittedTags.length - 1)
+      if (i != splittedTags.length - 1)
         str += ", ";
     }
     str += ")";
     console.log(str);
-    connection.query("select tag_id from Tag where name in " + str, function(err, rows){
-      if(err){
+    connection.query("select tag_id from Tag where name in " + str, function(err, rows) {
+      if (err) {
         console.log(err);
       }
-      if(rows.length != splittedTags.length){
-        res.send({message: "Given tag(s) are not valid"});
-      }
-      else{
+      if (rows.length != splittedTags.length) {
+        res.send({
+          message: "Given tag(s) are not valid"
+        });
+      } else {
         connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, result) {
           insertedId = result.insertId;
           str = "";
           for (var i = 0; i < splittedTags.length; i++) {
             str += "('" + insertedId + "', '" + rows[i].tag_id + "')";
-            if(i != splittedTags.length - 1)
+            if (i != splittedTags.length - 1)
               str += ", ";
           }
           console.log(str);
           connection.query("insert into post_tag(post_id, tag_id) values " + str, function(err, result) {
-            if(err)
+            if (err)
               console.log(err);
           });
           connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
-            if(err)
-              console.log(err)
-            ;
+            if (err)
+              console.log(err);
           });
           res.send({
             redirect: "/"
@@ -292,49 +292,6 @@ app.post('/askQuestion', function(req, res, next) {
         });
       }
     });
-
-
-    /*connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
-      insertedId = rows.insertId;
-      if (err) {
-        res.send({
-          message: "Error"
-        });
-      } else {
-        for (var i = 0; i < splittedTags.length; i++) {
-          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result) {
-            if (err)
-              console.log(err);
-            if (result.length == 0) {
-              res.send({
-                message: "Given tag(s) are not valid",
-                redirect: '/ask'
-              });
-            } else {
-              connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + result[0].tag_id + ")", function(err2, result2) {
-                if (err2)
-                  console.log(err2);
-                else
-                  index = index + 1;
-                if (index == splittedTags.length) {
-                  connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
-                    if (err) {
-                      res.send({
-                        message: "Error"
-                      });
-                    } else {
-                      res.send({
-                        redirect: "/"
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
-        }
-      }
-    });*/
   }
 });
 
