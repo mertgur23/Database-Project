@@ -81,15 +81,22 @@ app.get('/statistics', function(req, res, next) {
   var name = sess.user_name;
   connection.query("Select user_name, MAX(reputation) as rep from User where userType_id =" + check + " group by user_name order by rep desc limit 5", function(err, highestRepPeople) {
     connection.query("Select H.user_id, U.user_name, count(H.post_id) as Count from has_post H, User U where H.user_id = U.user_id group by H.user_id having Count > 10 order by Count desc limit 10", function(err2, poster) {
-      if (err)
-        console.log(err);
-      if (err2)
-        console.log(err2);
-      console.log(poster);
-      res.render('Statistics', {
-        highestRepPeople: highestRepPeople,
-        poster: poster,
-        login: sess.user_name
+      connection.query("DROP VIEW IF EXISTS postAvg");
+      connection.query('CREATE VIEW postAvg AS Select P.post_id,P.title, P.total_like from Post P where P.post_type = "Q" and P.total_like > (Select AVG(total_like) from Post where post_type = "Q")', function(err, avgLike) {
+        connection.query("Select * from postAvg where title IS NOT NULL order by total_like desc limit 10", function(err, avgPost) {
+          if (err)
+            console.log(err);
+          if (err2)
+            console.log(err2);
+          console.log(poster);
+          console.log(avgPost);
+          res.render('Statistics', {
+            highestRepPeople: highestRepPeople,
+            poster: poster,
+            login: sess.user_name,
+            avgPost: avgPost
+          });
+        });
       });
     });
   });
@@ -317,8 +324,7 @@ app.post('/followTag', function(req, res, next) {
         res.send({
           message: "Given tag(s) are not valid"
         });
-      }
-      else {
+      } else {
         str = "";
         for (var i = 0; i < splittedTags.length; i++) {
           str += "('" + userid + "', '" + rows[i].tag_id + "')";
@@ -330,9 +336,10 @@ app.post('/followTag', function(req, res, next) {
             res.send({
               message: "You can't follow tags you already follow"
             });
-          }
-          else
-            res.send({redirect: "/followedTag"}); 
+          } else
+            res.send({
+              redirect: "/followedTag"
+            });
         });
       }
     });
@@ -373,7 +380,9 @@ app.post('/addTag', function(req, res, next) {
                   if (err4)
                     console.log(err4);
                   else
-                    res.send({ redirect: "/followedTag"});
+                    res.send({
+                      redirect: "/followedTag"
+                    });
                 });
               }
             });
@@ -398,79 +407,47 @@ app.get('/question:id', function(req, res, next) {
   var user_id = sess.user_id;
   var comments = new Array();
   var a = req.params.id.split(':');
-  var favourited = 0;
-  var hasAcceptedAnswer = 0;
   var ownerOfQuestion = 0;
-  if (!user_id)
-    user_id = 0;
-  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
-    connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
-      connection.query("Select * from user_post_view where user_id=" + user_id + " and post_id=" + a[1] + "", function(err, view_result) {
-        if (view_result.length == 0 && user_id != 0) {
-          connection.query("insert into user_post_view values (" + user_id + ", " + a[1] + ")", function(err, instertedView) {
-            connection.query("UPDATE Post SET number_of_views = number_of_views + 1 where post_id = " + a[1] + "", function(err, increaseView) {});
-          });
-        }
-        connection.query("Select name from post_tag PT, Tag T where T.tag_id= PT.tag_id and PT.post_id = " + a[1], function(err, tags) {
-          connection.query("Select * from favourites where user_id = " + user_id + " and post_id =" + a[1] + "", function(err, favouriteResult) {
-            connection.query("Select * from has_post where user_id = " + user_id + " and post_id = " + a[1] + "", function(err, ownerQuestion) {
-              connection.query("Select acceptedAnswer_id from hasAcceptedAnswer where post_id = " + a[1] + "", function(err, acceptedAnswer) {
-                if (favouriteResult.length > 0) {
-                  favourited = 1;
-                }
+  connection.query("SELECT Post.post_id, Post.total_like, Post.text, Post.title, User.user_name, User.userType_id, favourites.user_id as favourite_user_id, has_parent.post_id as child_post_id, Tag.name as tag_name, votes_on.user_id as vote_user_id FROM Post join has_post on Post.post_id = has_post.post_id join User on User.user_id = has_post.user_id left join favourites on Post.post_id = favourites.post_id left join has_parent on has_parent.parent_id = Post.post_id join post_tag on Post.post_id = post_tag.post_id join Tag on post_tag.tag_id = Tag.tag_id left join votes_on on Post.post_id = votes_on.post_id where Post.post_id = " + a[1], function(err, rows) {
+    if (err)
+      console.log(err);
+    var favoriteUserIds = new Array();
+    var childPostIds = new Array();
+    var tagNames = new Array();
+    var voteUserIds = new Array();
 
-                if (ownerQuestion.length > 0) {
-                  ownerOfQuestion = 1;
-                }
-
-                if (acceptedAnswer.length > 0) {
-                  hasAcceptedAnswer = acceptedAnswer[0].acceptedAnswer_id;
-                }
-
-                var count = 0;
-                for (var i = 0; i < children.length; i++) {
-                  count++;
-                  connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
-                    if (err) {
-                      console.log(err);
-                    }
-                    count--;
-                    comments.push(childchild);
-                    if (count == 0) {
-                      res.render('question', {
-                        rows: rows,
-                        children: children,
-                        comments: comments,
-                        login: name,
-                        tags: tags,
-                        favourited: favourited,
-                        hasAcceptedAnswer: hasAcceptedAnswer,
-                        ownerOfQuestion: ownerOfQuestion,
-                        userType: sess.userType
-                      });
-                    }
-                  });
-
-
-                }
-
-                if (count == 0) {
-                  res.render('question', {
-                    rows: rows,
-                    children: children,
-                    comments: comments,
-                    login: name,
-                    tags: tags,
-                    favourited: favourited,
-                    hasAcceptedAnswer: hasAcceptedAnswer,
-                    ownerOfQuestion: ownerOfQuestion,
-                    userType: sess.userType
-                  });
-                }
-              });
-            });
-          });
-        });
+    for (var i = 0; i < rows.length; i++) {
+      if (favoriteUserIds.indexOf(rows[i].favourite_user_id) == -1) {
+        favoriteUserIds.push(rows[i].favourite_user_id);
+      }
+      if (childPostIds.indexOf(rows[i].child_post_id) == -1) {
+        childPostIds.push(rows[i].child_post_id);
+      }
+      if (tagNames.indexOf(rows[i].tag_name) == -1) {
+        tagNames.push(rows[i].tag_name);
+      }
+      if (voteUserIds.indexOf(rows[i].vote_user_id) == -1) {
+        voteUserIds.push(rows[i].vote_user_id);
+      }
+    }
+    var str = "(";
+    for (var i = 0; i < childPostIds.length; i++) {
+      str += "'" + childPostIds[i] + "'";
+      if (i != childPostIds.length - 1)
+        str += ", ";
+    }
+    str += ")";
+    connection.query("SELECT Post.post_id, Post.total_like, Post.post_type, Post.text, User.user_name, has_parent.post_id as child_post_id, votes_on.user_id as vote_user_id FROM Post join has_post on Post.post_id = has_post.post_id join User on User.user_id = has_post.user_id left join has_parent on has_parent.parent_id = Post.post_id left join votes_on on Post.post_id = votes_on.post_id where Post.post_id in " + str, function(err, result) {
+      if (err)
+        console.log(err);
+      console.log(result);
+      res.render('question', {
+        login: sess.user_name,
+        favourited: favoriteUserIds,
+        userType: rows[0].userType_id,
+        rows: rows,
+        tags: tagNames,
+        children: result
       });
     });
   });
