@@ -74,28 +74,31 @@ $(document).ready(function() {
     }, "json");
   });
 
-  $("#askQuestionButton").click(function() {
+ $("#askQuestionButton").click(function(){
     var title = $("#questionTitle").val();
     var text = $("#questionText").val();
-    if (title.length < 5) {
+    var tags = $("#tags-area").val();
+    if(title.length < 5){
       alert("Title must be at least 5 character");
-      console.log($(location).attr('pathname'));
-    } else if (text < 20) {
+    }
+    else if(text < 20){
       alert("Question must be at least 20 character");
-    } else {
-      $.post("askQuestion", {
-        title: title,
-        text: text
-      }, function(data) {
-        if (data.message) {
-          alert(data.message);
-        }
-        if (data.redirect) {
-          $(location).attr('pathname', data.redirect);
-        }
+    }
+    else if(tags.length == 0){
+      alert("Please enter at least one tag");
+    }
+    else{
+      $.post("askQuestion", {title: title, text: text, tags: tags}, function(data){
+        if(data.message){
+              alert(data.message);
+          }
+          if(data.redirect){
+            $(location).attr('pathname',data.redirect);
+          }
       }, "json");
     }
   });
+
 
   $("#submitAnswer").click(function() {
     var qId = $(location).attr('pathname').split(':');
@@ -165,6 +168,23 @@ $(document).ready(function() {
         }
       }, "json");
   });
+
+  $(".dropdown-menu li").click(function(){
+    var cat = $(this).text();
+      $(this).parents(".input-group-btn").find('.btn').text(cat);
+      $.post("getTag", {cat: cat}, function(data){
+        if(data.tags)
+        {
+          var total_tags =[];
+          for(var i = 0; i < data.tags.length; i++)
+          {
+            total_tags.push(data.tags[i].name);
+          }
+          $("#tags_available").text(total_tags);
+        }
+      }, "json");
+  });
+
 
 });
 

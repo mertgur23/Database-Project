@@ -219,52 +219,51 @@ app.post('/askQuestion', function(req, res, next) {
   var tags = req.body.tags;
   var splittedTags = tags.split(" ");
   var insertedId;
-  if (userid) {
-    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows) {
+  var valid = 1;
+  var index = 0;
+  var i;
+  if (userid) 
+  {
+    connection.query("insert into Post(ask_timestamp, edit_timestamp, post_type, text, title) values (NOW(), NOW(), 'Q', '" + text + "', '" + title + "')", function(err, rows){
+      insertedId = rows.insertId;
       if (err) {
-        res.send({
-          message: "Error"
-        });
+        res.send({message: "Error"});
       } else {
-        insertedId = rows.insertId;
-
-        function searchCoords(callback) {
-          var result = result;
-          for (var i = 0; i < splittedTags.length; i++) {
-            connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result, fields) {
-              if (err)
-                console.log(err);
-              callback({
-                result: result
+        for(i = 0; i < splittedTags.length; i++)
+        {
+          connection.query("Select tag_id from Tag where name='" + splittedTags[i] + "'", function(err, result){
+            if(err)
+              console.log(err);
+            if(result.length == 0){
+              res.send({message:"Given tag(s) are not valid", redirect:'/ask'});
+            }
+            else
+            {
+              connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + result[0].tag_id + ")", function(err2, result2){
+                if (err2)
+                  console.log(err2);
+                else
+                  index = index + 1;
+                if(index == splittedTags.length)
+                {
+                  console.log("Girdim");
+                  connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
+                    if (err) {
+                      res.send({message: "Error"});
+                    } else {
+                      res.send({redirect: "/"});
+                    }
+                  });    
+                }
               });
-            });
-          }
+            }
+          });
         }
-
-        searchCoords(function(resultsObject) {
-          for (var j = 0; j < resultsObject.result.length; j++) {
-            var tagid = resultsObject.result[j].tag_id;
-            connection.query("insert into post_tag(post_id, tag_id) values (" + insertedId + "," + tagid + ")", function(err, result) {
-              if (err)
-                console.log(err);
-            });
-          }
-        });
-
-        connection.query("insert into has_post values(" + userid + ", " + insertedId + ")", function(err, rows) {
-              if (err) {
-                res.send({
-                  message: "Error"
-                });
-              } else {
-                res.send({
-                  redirect: "/"
-                });          }
-        });
-      }
-    });
+      }    
+    }); 
   }
 });
+
 
 
 app.get('/question:id', function(req, res, next) {

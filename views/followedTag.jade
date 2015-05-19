@@ -13,8 +13,12 @@ block content
 				div(class="caption")
 					div(class="row")
 						div(class="col-md-1")
-							h3(class="score-up") 
-								strong #{rows[i].total_like}
+							if rows[i].total_like < 0
+								h3(class="score-down point")
+									strong #{rows[i].total_like}
+							else
+								h3(class="score-up point") 
+									strong #{rows[i].total_like}
 						div(class="col-md-11")
 							a(href="/question:#{rows[i].post_id}")
 								h4(class = "question-ad") #{rows[i].title}	
