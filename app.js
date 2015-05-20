@@ -126,7 +126,7 @@ app.get('/followedTag', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
   if (id) {
-    connection.query("Select P.total_like, P.title, P.number_of_views, P.ask_timestamp, U.user_name from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id=" + id + " and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err, rows) {
+    connection.query("Select distinct PT.post_id, P.total_like, P.title, P.number_of_views, P.ask_timestamp, U.user_name from follow F, post_tag PT, Post P, User U, has_post HP where F.user_id=" + id + " and F.tag_id = PT.tag_id and P.post_id=HP.post_id and U.user_id=HP.user_id and P.post_id=PT.post_id order by P.ask_timestamp desc limit 10", function(err, rows) {
       connection.query("Select T.name from follow F, Tag T where F.tag_id = T.tag_id and F.user_id=" + id, function(err2, foltags) {
         connection.query("Select category_name from Categories", function(err, categ) {
           if (err)
