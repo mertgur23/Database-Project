@@ -14,7 +14,6 @@ block content
 				div(class="list-group")
 				- for(i =0; i < answers.length; ++i){
 					a(href="/question:#{answers[i].parent_id}" class = "list-group-item") 
-						h4 <strong>#{answers[i].title}</strong> 
 						p #{answers[i].text}
 				- }
 				h2 Favorite Questions(#{favourite.length})

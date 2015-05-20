@@ -50,7 +50,7 @@ app.get('/', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
   var name = sess.user_name;
-  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.ask_timestamp desc limit 10', function(err, rows) {
+  connection.query('Select P.post_id, P.title, P.total_like, P.number_of_views, P.ask_timestamp, U.user_name from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.ask_timestamp desc limit 10', function(err, rows) {
     if (err)
       res.send({
         message: "Error"
@@ -66,7 +66,7 @@ app.get('/popular', function(req, res, next) {
   sess = req.session;
   var id = sess.user_id;
   var name = sess.user_name;
-  connection.query('Select * from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
+  connection.query('Select P.total_like, P.post_id, P.title, P.number_of_views, P.ask_timestamp, U.user_name from Post P, has_post H, User U where P.post_type = "Q" and U.user_id = H.user_id and P.post_id = H.post_id order by P.number_of_views desc limit 10', function(err, rows) {
     res.render('indexPopular', {
       rows: rows,
       login: name
@@ -411,8 +411,8 @@ app.get('/question:id', function(req, res, next) {
   var ownerOfQuestion = 0;
   if (!user_id)
     user_id = 0;
-  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
-    connection.query("Select * from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
+  connection.query("Select P.title, P.total_like, P.post_id, P.text, U.user_name from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id and P.post_id = " + a[1], function(err, rows) {
+    connection.query("Select P.total_like, P.post_type, P.post_id, P.text, U.user_name from has_parent H, Post P, User U, has_post HP where H.parent_id=" + a[1] + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, children) {
       connection.query("Select * from user_post_view where user_id=" + user_id + " and post_id=" + a[1] + "", function(err, view_result) {
         if (view_result.length == 0 && user_id != 0) {
           connection.query("insert into user_post_view values (" + user_id + ", " + a[1] + ")", function(err, instertedView) {
@@ -438,7 +438,7 @@ app.get('/question:id', function(req, res, next) {
                 var count = 0;
                 for (var i = 0; i < children.length; i++) {
                   count++;
-                  connection.query("select * from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
+                  connection.query("select P.post_id, P.text, U.user_name from has_parent H, Post P,User U, has_post HP where H.parent_id= " + children[i].post_id + " and H.post_id = P.post_id and U.user_id = HP.user_id and HP.post_id = H.post_id", function(err, childchild) {
                     if (err) {
                       console.log(err);
                     }
@@ -489,12 +489,12 @@ app.get('/question:id', function(req, res, next) {
 app.get('/profile', function(req, res, next) {
   sess = req.session;
   var user_id = sess.user_id;
-  connection.query("Select * from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err, questions) {
-    connection.query("Select * from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id =" + user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err, answers) {
-      connection.query("Select * from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err, favourite) {
-        connection.query("Select * from Badges B, has_badges H, User U where U.user_id =" + user_id + " and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges) {
-          connection.query("Select * from Tag T, follow F, User U where U.user_id =" + user_id + " and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err, tags) {
-            connection.query("Select * from User U where U.user_id =" + user_id + "", function(err, reputation) {
+  connection.query("Select P.post_id, P.title, P.text from Post P, has_post H, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = H.user_id and P.post_id = H.post_id", function(err, questions) {
+    connection.query("Select HP.parent_id, P.text from Post P, has_post H, User U, has_parent HP where P.post_type = 'A' and U.user_id =" + user_id + " and HP.post_id = P.post_id and U.user_id = H.user_id and P.post_id = H.post_id", function(err, answers) {
+      connection.query("Select P.post_id, P.title, P.text from Post P, favourites F, User U where P.post_type = 'Q' and U.user_id =" + user_id + " and U.user_id = F.user_id and P.post_id = F.post_id", function(err, favourite) {
+        connection.query("Select B.badgeType, B.badgeName from Badges B, has_badges H, User U where U.user_id =" + user_id + " and U.user_id = H.user_id and B.badge_id = H.badge_id", function(err, badges) {
+          connection.query("Select T.name from Tag T, follow F, User U where U.user_id =" + user_id + " and U.user_id = F.user_id and T.tag_id = F.tag_id", function(err, tags) {
+            connection.query("Select U.reputation from User U where U.user_id =" + user_id + "", function(err, reputation) {
               res.render('profile', {
                 questions: questions,
                 answers: answers,
@@ -690,7 +690,7 @@ app.post("/search", function(req, res, next) {
   var user_id = sess.user_id;
   var searchText = '%' + req.body.searchText + '%';
   var data = [searchText, searchText];
-  connection.query("SELECT * FROM Post P, has_post H, User U WHERE (P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id) and (text LIKE ? or title LIKE ?)", data, function(err, result) {
+  connection.query("Select P.post_id, P.title, P.total_like, P.number_of_views, P.ask_timestamp, U.user_name FROM Post P, has_post H, User U WHERE (P.post_type = 'Q' and U.user_id = H.user_id and P.post_id = H.post_id) and (text LIKE ? or title LIKE ?)", data, function(err, result) {
     console.log(data);
     res.render("searchResult", {
       rows: result,
